@@ -1,16 +1,12 @@
 package com.han2dev.supertime_v0
 
 import android.content.Intent
-import android.media.AudioAttributes
-import android.media.SoundPool
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 
 class TimerActivity : AppCompatActivity(), TimerParent, java.io.Serializable {
 
@@ -63,7 +59,6 @@ class TimerActivity : AppCompatActivity(), TimerParent, java.io.Serializable {
         btnCancel.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
-            println("went back to main activity")
         }
 
         btnRestart.setOnClickListener {

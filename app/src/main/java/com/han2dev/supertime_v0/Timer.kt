@@ -39,6 +39,7 @@ class TimerLoop(val repeats: Int = 2) : Timer(), TimerParent {
         this.activity = activity
         this.parent = parent
         repeatsLeft = repeats
+        currentTimer = 0
 
         txtCycles  = activity.findViewById(R.id.txtCycles)
         txtCycles.text = repeatsLeft.toString()//txtCycles.text.toString().replace("<n>;", repeats.toString())
@@ -63,7 +64,6 @@ class TimerLoop(val repeats: Int = 2) : Timer(), TimerParent {
         }
         else{
             if(repeatsLeft > 1){
-                println("repeats--")
                 repeatsLeft--
                 currentTimer = 0
                 timer[currentTimer].start(activity, this)
