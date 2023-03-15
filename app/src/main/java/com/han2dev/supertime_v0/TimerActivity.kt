@@ -1,5 +1,6 @@
 package com.han2dev.supertime_v0
 
+import android.content.Intent
 import android.media.AudioAttributes
 import android.media.SoundPool
 import android.os.Build
@@ -60,7 +61,9 @@ class TimerActivity : AppCompatActivity(), TimerParent, java.io.Serializable {
         }
 
         btnCancel.setOnClickListener {
-            //TODO: cancel timer and return to MainActivity
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            println("went back to main activity")
         }
 
         btnRestart.setOnClickListener {
