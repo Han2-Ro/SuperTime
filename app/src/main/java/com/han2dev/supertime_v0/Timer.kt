@@ -29,7 +29,7 @@ interface TimerParent {
     fun next()
 }
 
-class TimerLoop(val repeats: Int = 2) : Timer(), TimerParent {
+class TimerLoop(val repeats: Int = 1) : Timer(), TimerParent {
     private var repeatsLeft: Int = 1
     private var currentTimer: Int = 0
     var timer: MutableList<Timer> = mutableListOf()
@@ -77,7 +77,7 @@ class TimerLoop(val repeats: Int = 2) : Timer(), TimerParent {
 }
 
 
-class TimerElem(val time: Long) : Timer() {
+class TimerElem(val time: Long = 0) : Timer() {
     private lateinit var cdTimer: CountDownTimer
     private lateinit var soundPool: SoundPool
     private var sound1: Int = -1

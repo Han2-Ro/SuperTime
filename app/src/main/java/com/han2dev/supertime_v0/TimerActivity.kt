@@ -30,8 +30,6 @@ class TimerActivity : AppCompatActivity(), TimerParent, java.io.Serializable {
         }
         if (timer == null) throw NullPointerException("Found no \"timer\": Timer in intent extra.")
 
-        println((timer as TimerLoop).timer.toString())
-        timer.start(this, this)
 
         btnPause = findViewById(R.id.btnPause)
         btnResume = findViewById(R.id.btnResume)
@@ -68,6 +66,8 @@ class TimerActivity : AppCompatActivity(), TimerParent, java.io.Serializable {
             btnCancel.visibility = View.GONE
             btnPause.visibility = View.VISIBLE
         }
+
+        timer.start(this, this)
     }
 
     override fun next() {

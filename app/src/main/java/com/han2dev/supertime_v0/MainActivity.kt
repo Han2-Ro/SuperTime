@@ -6,6 +6,8 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
@@ -31,9 +33,15 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        val btnAdd: FloatingActionButton = findViewById(R.id.btnAdd)
+        val btnAdd: Button = findViewById(R.id.btnAddTime)
         btnAdd.setOnClickListener {
-            adapter.addTime(0)
+            adapter.add(TimerElem())
+        }
+
+        val btnAddLoop: Button = findViewById(R.id.btnAddLoop)
+        btnAddLoop.setOnClickListener {
+            ViewType.LOOP.ordinal
+            adapter.add(TimerLoop(1))
         }
     }
 
