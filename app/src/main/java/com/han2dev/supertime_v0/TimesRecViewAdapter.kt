@@ -1,5 +1,6 @@
 package com.han2dev.supertime_v0
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -68,6 +69,7 @@ class TimesRecViewAdapter(private val context: Context, recyclerView: RecyclerVi
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onBindViewHolder(holder: TimerViewHolder, position: Int) {
         holder.txtPosition.text = "${position+1}."
 
@@ -75,18 +77,22 @@ class TimesRecViewAdapter(private val context: Context, recyclerView: RecyclerVi
             if (event.action ==
                 MotionEvent.ACTION_DOWN
             ) {
-                touchHelper.startDrag(holder);
+                touchHelper.startDrag(holder)
             }
             false
         }
 
+
+        //add RecyclerView to Loop Holder
         if (holder is LoopHolder) {
             val adapter = TimesRecViewAdapter(context, holder.recView)
 
             holder.recView.adapter = adapter
             holder.recView.layoutManager = LinearLayoutManager(context)
+
+            //TODO: remove(only for testing)
             adapter.add(TimerElem(5))
-            adapter.add(TimerElem(5))
+            adapter.add(TimerElem(3))
         }
 
         holder.btnRemove.setOnClickListener {
@@ -107,13 +113,24 @@ class TimesRecViewAdapter(private val context: Context, recyclerView: RecyclerVi
         notifyDataSetChanged()
     }
 
-    fun updateTimer(): Timer {
-        //TODO: adjust for loops and stuff
-        /*for (holder in holders) {
-            val min: Long = holder.edtTxtMin.text.toString().toLongOrNull()?:0
-            val sec: Long = holder.edtTxtSec.text.toString().toLongOrNull()?:0
-            timer.timer[holder.adapterPosition] = TimerElem((min*60 + sec) * 1000)
-        }*/
+    fun updateTimer(): TimerLoop {
+        //TODO: adjust for loops and stuff(doing)
+        for (holder in holders) {
+            if (holder is TimerElemHolder) {
+                println("updating TimerElem...")
+                val min: Long = holder.edtTxtMin.text.toString().toLongOrNull() ?: 0
+                val sec: Long = holder.edtTxtSec.text.toString().toLongOrNull() ?: 0
+                timer.timer[holder.adapterPosition] = TimerElem((min * 60 + sec) * 1000)
+                println("updated TimerElem: ${(min * 60 + sec) * 1000}")
+            }
+            else if (holder is LoopHolder) {
+                println("updating TimerLoop...")
+                val adapter: TimesRecViewAdapter = holder.recView.adapter as TimesRecViewAdapter
+                timer.timer[holder.adapterPosition] = adapter.updateTimer()
+                (timer.timer[holder.adapterPosition] as TimerLoop).repeats = holder.editTxtRepeats.text.toString().toInt()
+                println("updated TimerLoop: ${holder.editTxtRepeats.text.toString().toInt()}")
+            }
+        }
 
         return timer
     }

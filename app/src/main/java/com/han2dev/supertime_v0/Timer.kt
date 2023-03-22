@@ -29,7 +29,7 @@ interface TimerParent {
     fun next()
 }
 
-class TimerLoop(val repeats: Int = 1) : Timer(), TimerParent {
+class TimerLoop(var repeats: Int = 1) : Timer(), TimerParent {
     private var repeatsLeft: Int = 1
     private var currentTimer: Int = 0
     var timer: MutableList<Timer> = mutableListOf()
