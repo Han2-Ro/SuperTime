@@ -2,13 +2,10 @@ package com.han2dev.supertime_v0
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,7 +22,7 @@ class TimesRecViewAdapter(private val context: Context, recyclerView: RecyclerVi
 
     init {
         val simpleCallback: ItemTouchHelper.SimpleCallback =
-            object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
+            object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT) {
                 override fun isLongPressDragEnabled(): Boolean = false
 
                 override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
@@ -33,7 +30,9 @@ class TimesRecViewAdapter(private val context: Context, recyclerView: RecyclerVi
                     return true
                 }
 
-                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    remove(viewHolder.adapterPosition)
+                }
             }
 
         touchHelper = ItemTouchHelper(simpleCallback)
@@ -95,10 +94,9 @@ class TimesRecViewAdapter(private val context: Context, recyclerView: RecyclerVi
             adapter.add(TimerElem(3))
         }
 
+        //delete Button
         holder.btnRemove.setOnClickListener {
-            updateTimer()
-            timer.timer.removeAt(holder.adapterPosition)
-            notifyItemRemoved(holder.adapterPosition)
+            remove(holder.adapterPosition)
         }
     }
 
@@ -114,7 +112,6 @@ class TimesRecViewAdapter(private val context: Context, recyclerView: RecyclerVi
     }
 
     fun updateTimer(): TimerLoop {
-        //TODO: adjust for loops and stuff(doing)
         for (holder in holders) {
             if (holder is TimerElemHolder) {
                 println("updating TimerElem...")
@@ -138,5 +135,11 @@ class TimesRecViewAdapter(private val context: Context, recyclerView: RecyclerVi
     fun onRowMoved(fromPos: Int, toPos: Int) {
         Collections.swap(timer.timer, fromPos, toPos)
         notifyItemMoved(fromPos, toPos)
+    }
+
+    fun remove(position: Int) {
+        updateTimer()
+        timer.timer.removeAt(position)
+        notifyItemRemoved(position)
     }
 }
