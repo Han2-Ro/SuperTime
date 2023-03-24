@@ -15,8 +15,9 @@ import java.util.*
 
 enum class ViewType {TIME, LOOP}
 
-class TimesRecViewAdapter(private val context: Context, recyclerView: RecyclerView) : RecyclerView.Adapter<TimerViewHolder>() {
+class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : RecyclerView.Adapter<TimerViewHolder>() {
 
+    private val viewPool = RecyclerView.RecycledViewPool()
     var timer: TimerLoop = TimerLoop()
     private var holders: ArrayList<TimerViewHolder> = arrayListOf()
     private lateinit var touchHelper: ItemTouchHelper
@@ -41,20 +42,26 @@ class TimesRecViewAdapter(private val context: Context, recyclerView: RecyclerVi
         touchHelper.attachToRecyclerView(recyclerView)
     }
 
+    fun notifyAllDataSetChanged(){
+        notifyDataSetChanged()
+        holders.forEach {
+            if (it is LoopHolder) it.adapter!!.notifyDataSetChanged()
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TimerViewHolder {
         val viewHolder: TimerViewHolder = when (viewType) {
             ViewType.TIME.ordinal -> {
                 val view: View = LayoutInflater.from(parent.context).inflate(R.layout.li_set_time, parent, false)
-                TimerElemHolder(view)
+                TimerElemHolder(view, this)
             }
             ViewType.LOOP.ordinal -> {
                 val view: View = LayoutInflater.from(parent.context).inflate(R.layout.li_loop, parent, false)
-                LoopHolder(view)
+                LoopHolder(view, this)
             }
             else -> {
                 val view: View = TextView(context).apply { text = "An error occurred." }
-                TimerViewHolder(view)
+                TimerViewHolder(view, this)
             }
         }
 
@@ -88,36 +95,11 @@ class TimesRecViewAdapter(private val context: Context, recyclerView: RecyclerVi
         if (holder is LoopHolder) {
             holder.adapter = TimesRecViewAdapter(context, holder.recView)
             holder.recView.layoutManager = LinearLayoutManager(context)
+            holder.recView.setRecycledViewPool(viewPool)
 
             //TODO: remove(only for testing)
             holder.adapter!!.add(TimerElem(5))
-        }
-
-        //delete Button
-        holder.btnRemove.setOnClickListener {
-            remove(holder.adapterPosition)
-        }
-
-        //up Button
-        holder.btnUp.setOnClickListener {
-            val currentPos: Int = holder.adapterPosition
-            if (currentPos > 0) {
-                Collections.swap(timer.timer, currentPos, currentPos - 1)
-                notifyItemMoved(currentPos, currentPos - 1)
-            } else {
-                Toast.makeText(context, "already at the top", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        //down Button
-        holder.btnDown.setOnClickListener {
-            val currentPos: Int = holder.adapterPosition
-            if (currentPos+1 < timer.timer.size) {
-                Collections.swap(timer.timer, currentPos, currentPos + 1)
-                notifyItemMoved(currentPos, currentPos + 1)
-            } else {
-                Toast.makeText(context, "already at the bottom", Toast.LENGTH_SHORT).show()
-            }
+            holder.adapter!!.add(TimerElem(2))
         }
     }
 
@@ -142,11 +124,12 @@ class TimesRecViewAdapter(private val context: Context, recyclerView: RecyclerVi
                 println("updated TimerElem: ${(min * 60 + sec) * 1000}")
             }
             else if (holder is LoopHolder) {
+
                 println("updating TimerLoop...")
                 val adapter: TimesRecViewAdapter = holder.recView.adapter as TimesRecViewAdapter
                 timer.timer[holder.adapterPosition] = adapter.updateTimer()
-                (timer.timer[holder.adapterPosition] as TimerLoop).repeats = holder.editTxtRepeats.text.toString().toInt()
-                println("updated TimerLoop: ${holder.editTxtRepeats.text.toString().toInt()}")
+                (timer.timer[holder.adapterPosition] as TimerLoop).repeats = holder.editTxtRepeats.text.toString().toIntOrNull()?:1
+                println("updated TimerLoop: ${holder.editTxtRepeats.text.toString().toIntOrNull()?:1}")
             }
         }
 

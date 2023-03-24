@@ -63,9 +63,9 @@ class TimerLoop(var repeats: Int = 1) : Timer(), TimerParent {
             timer[currentTimer].start(activity, this)
         }
         else{
+            currentTimer = 0
             if(repeatsLeft > 1){
                 repeatsLeft--
-                currentTimer = 0
                 timer[currentTimer].start(activity, this)
                 txtCycles.text = repeatsLeft.toString()//txtCycles.text.toString().replace("<n>", repeats.toString())
             }
