@@ -10,6 +10,8 @@ open class TimerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
     val txtPosition: TextView = itemView.findViewById(R.id.txtPosition)
     val dragHandle: ImageView = itemView.findViewById(R.id.dragHandle)
     val btnRemove: ImageView = itemView.findViewById(R.id.btnRemove)
+    val btnUp: ImageView = itemView.findViewById(R.id.btnUp)
+    val btnDown: ImageView = itemView.findViewById(R.id.btnDown)
 }
 
 class TimerElemHolder(itemView: View) : TimerViewHolder(itemView) {
@@ -20,4 +22,9 @@ class TimerElemHolder(itemView: View) : TimerViewHolder(itemView) {
 class LoopHolder(itemView: View) : TimerViewHolder(itemView) {
     val editTxtRepeats: EditText = itemView.findViewById(R.id.editTxtRepeats)
     val recView: RecyclerView = itemView.findViewById(R.id.recView)
+    var adapter: TimesRecViewAdapter? = null
+        set(value) {
+            recView.adapter = value
+            field = value
+        }
 }

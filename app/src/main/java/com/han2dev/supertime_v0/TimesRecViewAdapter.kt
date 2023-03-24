@@ -7,6 +7,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,10 +27,11 @@ class TimesRecViewAdapter(private val context: Context, recyclerView: RecyclerVi
                 override fun isLongPressDragEnabled(): Boolean = false
 
                 override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-                    onRowMoved(viewHolder.adapterPosition, target.adapterPosition)
+                    onRowMoved(viewHolder, target)
                     return true
                 }
 
+                //TODO: Fix this shit because int won't delete
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     remove(viewHolder.adapterPosition)
                 }
@@ -84,19 +86,38 @@ class TimesRecViewAdapter(private val context: Context, recyclerView: RecyclerVi
 
         //add RecyclerView to Loop Holder
         if (holder is LoopHolder) {
-            val adapter = TimesRecViewAdapter(context, holder.recView)
-
-            holder.recView.adapter = adapter
+            holder.adapter = TimesRecViewAdapter(context, holder.recView)
             holder.recView.layoutManager = LinearLayoutManager(context)
 
             //TODO: remove(only for testing)
-            adapter.add(TimerElem(5))
-            adapter.add(TimerElem(3))
+            holder.adapter!!.add(TimerElem(5))
         }
 
         //delete Button
         holder.btnRemove.setOnClickListener {
             remove(holder.adapterPosition)
+        }
+
+        //up Button
+        holder.btnUp.setOnClickListener {
+            val currentPos: Int = holder.adapterPosition
+            if (currentPos > 0) {
+                Collections.swap(timer.timer, currentPos, currentPos - 1)
+                notifyItemMoved(currentPos, currentPos - 1)
+            } else {
+                Toast.makeText(context, "already at the top", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        //down Button
+        holder.btnDown.setOnClickListener {
+            val currentPos: Int = holder.adapterPosition
+            if (currentPos+1 < timer.timer.size) {
+                Collections.swap(timer.timer, currentPos, currentPos + 1)
+                notifyItemMoved(currentPos, currentPos + 1)
+            } else {
+                Toast.makeText(context, "already at the bottom", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -108,7 +129,7 @@ class TimesRecViewAdapter(private val context: Context, recyclerView: RecyclerVi
 
     fun add(new: Timer) {
         timer.timer.add(new)
-        notifyDataSetChanged()
+        notifyDataSetChanged() //TODO: change to notifyItemInserted(position)
     }
 
     fun updateTimer(): TimerLoop {
@@ -132,13 +153,35 @@ class TimesRecViewAdapter(private val context: Context, recyclerView: RecyclerVi
         return timer
     }
 
-    fun onRowMoved(fromPos: Int, toPos: Int) {
-        Collections.swap(timer.timer, fromPos, toPos)
-        notifyItemMoved(fromPos, toPos)
+
+    fun onRowMoved(viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder) {
+        val fromPosition: Int = viewHolder.layoutPosition
+        val toPosition: Int = target.layoutPosition
+        println("fromPosition = $fromPosition")
+        println("toPosition = $toPosition")
+        if (target is TimerElemHolder) {
+            if (fromPosition < toPosition) {
+                for (i in fromPosition until toPosition) {
+                    Collections.swap(timer.timer, i, i + 1)
+                }
+            } else {
+                for (i in fromPosition downTo toPosition + 1) {
+                    Collections.swap(timer.timer, i, i - 1)
+                }
+            }
+
+            notifyItemMoved(fromPosition, toPosition)
+        }
+        else if (target is LoopHolder) {
+            target.adapter!!.add(timer.timer[fromPosition])
+            remove(fromPosition)
+            notifyItemRemoved(fromPosition)
+        }
     }
 
     fun remove(position: Int) {
-        updateTimer()
+        //TODO: decide if updateTimer should be called
+        //updateTimer()
         timer.timer.removeAt(position)
         notifyItemRemoved(position)
     }
