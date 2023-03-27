@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:text="1."
             android:textColor="@color/design_default_color_secondary"
-            android:textSize="30dp"
+            android:textSize="30sp"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -38,21 +38,19 @@
             android:ems="10"
             android:hint="repeats"
             android:inputType="number"
-            app:layout_constraintBottom_toBottomOf="@+id/btnRemove"
-            app:layout_constraintEnd_toStartOf="@+id/btnRemove"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/btnRemove" />
+            app:layout_constraintTop_toTopOf="parent" />
 
 
         <ImageView
-            android:id="@+id/btnRemove"
+            android:id="@+id/btnOptions"
             android:layout_width="45dp"
             android:layout_height="45dp"
+            android:src="@drawable/ic_settings"
             android:layout_marginRight="15dp"
-            android:src="@drawable/ic_remove"
             app:layout_constraintBottom_toBottomOf="@+id/btnDown"
             app:layout_constraintEnd_toStartOf="@+id/btnUp"
-            app:layout_constraintTop_toTopOf="@+id/btnUp" />
+            app:layout_constraintTop_toTopOf="@+id/btnUp"/>
 
         <ImageView
             android:id="@+id/btnUp"
@@ -77,9 +75,8 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_drag_handler1"
-            app:layout_constraintBottom_toBottomOf="@+id/btnRemove"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/btnRemove"
+            app:layout_constraintTop_toTopOf="parent"
             android:visibility="gone"/>
 
         <androidx.recyclerview.widget.RecyclerView

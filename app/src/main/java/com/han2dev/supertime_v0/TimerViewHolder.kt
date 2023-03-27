@@ -1,24 +1,45 @@
 package com.han2dev.supertime_v0
 
+import android.view.MenuItem
 import android.view.View
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
 open class TimerViewHolder(itemView: View, parentAdapter: TimesRecViewAdapter) : RecyclerView.ViewHolder(itemView){
     val txtPosition: TextView = itemView.findViewById(R.id.txtPosition)
     val dragHandle: ImageView = itemView.findViewById(R.id.dragHandle)
-    private val btnRemove: ImageView = itemView.findViewById(R.id.btnRemove)
     private val btnUp: ImageView = itemView.findViewById(R.id.btnUp)
     private val btnDown: ImageView = itemView.findViewById(R.id.btnDown)
+    private val btnOptions: ImageView = itemView.findViewById(R.id.btnOptions)
 
     init {
-        //delete Button
-        btnRemove.setOnClickListener {
-            parentAdapter.remove(adapterPosition)
+        btnOptions.setOnClickListener {v: View ->
+            val popup: PopupMenu = PopupMenu(itemView.context, v)
+            popup.setOnMenuItemClickListener {item: MenuItem ->
+                when (item.itemId) {
+                    R.id.delete -> {
+                        parentAdapter.remove(adapterPosition)
+                        Toast.makeText(itemView.context, "deleted", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+                    R.id.cut -> {
+                        Toast.makeText(itemView.context, "cut", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+                    R.id.copy -> {
+                        Toast.makeText(itemView.context, "copy", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+                    R.id.paste -> {
+                        Toast.makeText(itemView.context, "paste", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+                    else -> {false}
+                }
+            }
+            popup.inflate(R.menu.timer_popup_menu)
+            popup.show()
         }
 
         //up Button TODO: make it go and out of loops

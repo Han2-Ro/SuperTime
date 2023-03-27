@@ -51,7 +51,7 @@
             android:text=":"
             android:textSize="35sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/btnRemove"
+            app:layout_constraintEnd_toStartOf="@+id/btnOptions"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -70,16 +70,14 @@
             app:layout_constraintTop_toTopOf="@+id/colon" />
 
         <ImageView
-            android:id="@+id/btnRemove"
+            android:id="@+id/btnOptions"
             android:layout_width="45dp"
             android:layout_height="45dp"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@id/dragHandle"
-            android:src="@drawable/ic_remove"
+            android:src="@drawable/ic_settings"
             android:layout_marginRight="15dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btnUp"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <ImageView
             android:id="@+id/btnUp"
