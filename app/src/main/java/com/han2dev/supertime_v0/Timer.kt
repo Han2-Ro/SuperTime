@@ -18,11 +18,11 @@ fun formatTime(millis: Long): String {
 
 
 abstract class Timer: java.io.Serializable {
-    protected lateinit var activity: Activity
     protected lateinit var parent: TimerParent
     abstract fun start(activity: Activity, parent: TimerParent)
     abstract fun pause()
     abstract fun resume()
+    abstract fun clone(): Timer
 }
 
 interface TimerParent {
@@ -30,6 +30,7 @@ interface TimerParent {
 }
 
 class TimerLoop(var repeats: Int = 1) : Timer(), TimerParent {
+    private lateinit var activity: Activity
     private var repeatsLeft: Int = 1
     private var currentTimer: Int = 0
     var timer: MutableList<Timer> = mutableListOf()
@@ -74,6 +75,13 @@ class TimerLoop(var repeats: Int = 1) : Timer(), TimerParent {
             }
         }
     }
+
+    override fun clone(): TimerLoop {
+        println("Copied Loop")
+        val copy = TimerLoop(repeats)
+        copy.timer = timer.toMutableList()
+        return copy
+    }
 }
 
 
@@ -85,7 +93,6 @@ class TimerElem(val time: Long = 0) : Timer() {
     private var timeRemaining: Long = time
 
     override fun start(activity: Activity, parent: TimerParent) {
-        this.activity = activity
         this.parent = parent
         timeRemaining = time
         txtTime = activity.findViewById(R.id.txtTime)
@@ -139,5 +146,18 @@ class TimerElem(val time: Long = 0) : Timer() {
         soundPool.play(sound1, 1f, 1f, 0, 0, 1f)
         txtTime.text = "00:00.00"
         parent.next()
+    }
+
+    override fun clone(): TimerElem {
+        println("copied TimerElem")
+        return TimerElem(time)
+    }
+
+    fun getSeconds(): Long {
+        return time / 1000 % 60
+    }
+
+    fun getMinutes(): Long {
+        return time / (1000 * 60)
     }
 }

@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,8 +18,8 @@ class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : Re
 
     private val viewPool = RecyclerView.RecycledViewPool()
     var timer: TimerLoop = TimerLoop()
-    private var holders: ArrayList<TimerViewHolder> = arrayListOf()
-    private lateinit var touchHelper: ItemTouchHelper
+    var holders: ArrayList<TimerViewHolder> = arrayListOf()
+    private var touchHelper: ItemTouchHelper
 
     init {
         val simpleCallback: ItemTouchHelper.SimpleCallback =
@@ -60,8 +59,7 @@ class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : Re
                 LoopHolder(view, this)
             }
             else -> {
-                val view: View = TextView(context).apply { text = "An error occurred." }
-                TimerViewHolder(view, this)
+                throw Exception("ViewType not found: $viewType")
             }
         }
 
@@ -81,6 +79,12 @@ class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : Re
     override fun onBindViewHolder(holder: TimerViewHolder, position: Int) {
         holder.txtPosition.text = "${position+1}."
 
+        if (holder is TimerElemHolder) {
+            holder.edtTxtMin.setText((timer.timer[position] as TimerElem).getMinutes().toString())
+            holder.edtTxtSec.setText((timer.timer[position] as TimerElem).getSeconds().toString())
+        }
+
+        //TODO: consider doing this in constructor of TimerViewHolder
         holder.dragHandle.setOnTouchListener { v, event ->
             if (event.action ==
                 MotionEvent.ACTION_DOWN
@@ -91,6 +95,7 @@ class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : Re
         }
 
 
+        //TODO: consider doing this in constructor of TimerViewHolder
         //add RecyclerView to Loop Holder
         if (holder is LoopHolder) {
             holder.adapter = TimesRecViewAdapter(context, holder.recView)

@@ -6,7 +6,11 @@ import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
-open class TimerViewHolder(itemView: View, parentAdapter: TimesRecViewAdapter) : RecyclerView.ViewHolder(itemView){
+// "Do not place Android context classes in static fields (static reference to Timer which has field activity pointing to Activity); this is a memory leak"
+// Fixed but TimerLoop has field pointing to Activity
+var clipboard: Timer? = null
+
+abstract class TimerViewHolder(itemView: View, parentAdapter: TimesRecViewAdapter) : RecyclerView.ViewHolder(itemView) {
     val txtPosition: TextView = itemView.findViewById(R.id.txtPosition)
     val dragHandle: ImageView = itemView.findViewById(R.id.dragHandle)
     private val btnUp: ImageView = itemView.findViewById(R.id.btnUp)
@@ -15,7 +19,7 @@ open class TimerViewHolder(itemView: View, parentAdapter: TimesRecViewAdapter) :
 
     init {
         btnOptions.setOnClickListener {v: View ->
-            val popup: PopupMenu = PopupMenu(itemView.context, v)
+            val popup = PopupMenu(itemView.context, v)
             popup.setOnMenuItemClickListener {item: MenuItem ->
                 when (item.itemId) {
                     R.id.delete -> {
@@ -24,15 +28,23 @@ open class TimerViewHolder(itemView: View, parentAdapter: TimesRecViewAdapter) :
                         true
                     }
                     R.id.cut -> {
+                        clipboard = readInput()
+                        parentAdapter.remove(adapterPosition)
                         Toast.makeText(itemView.context, "cut", Toast.LENGTH_SHORT).show()
                         true
                     }
                     R.id.copy -> {
-                        Toast.makeText(itemView.context, "copy", Toast.LENGTH_SHORT).show()
+                        clipboard = readInput() //parentAdapter.timer.timer[adapterPosition].clone()
+                        Toast.makeText(itemView.context, "copied", Toast.LENGTH_SHORT).show()
                         true
                     }
                     R.id.paste -> {
-                        Toast.makeText(itemView.context, "paste", Toast.LENGTH_SHORT).show()
+                        if (clipboard != null) {
+                            parentAdapter.add(clipboard!!)
+                            Toast.makeText(itemView.context, "pasted", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(itemView.context, "Clipboard is empty.", Toast.LENGTH_SHORT).show()
+                        }
                         true
                     }
                     else -> {false}
@@ -73,11 +85,21 @@ open class TimerViewHolder(itemView: View, parentAdapter: TimesRecViewAdapter) :
             }
         }
     }
+
+    //reads the input und writes it into the variables
+    abstract fun readInput(): Timer
 }
 
 class TimerElemHolder(itemView: View, parentAdapter: TimesRecViewAdapter) : TimerViewHolder(itemView, parentAdapter) {
     val edtTxtMin: EditText = itemView.findViewById(R.id.editTxtMin)
     val edtTxtSec: EditText = itemView.findViewById(R.id.editTxtSec)
+    override fun readInput(): TimerElem {
+        println("updating TimerElem...")
+        val min: Long = edtTxtMin.text.toString().toLongOrNull() ?: 0
+        val sec: Long = edtTxtSec.text.toString().toLongOrNull() ?: 0
+        println("updated TimerElem: ${(min * 60 + sec) * 1000}")
+        return TimerElem((min * 60 + sec) * 1000)
+    }
 }
 
 class LoopHolder(itemView: View, parentAdapter: TimesRecViewAdapter) : TimerViewHolder(itemView, parentAdapter) {
@@ -88,4 +110,16 @@ class LoopHolder(itemView: View, parentAdapter: TimesRecViewAdapter) : TimerView
             recView.adapter = value
             field = value
         }
+
+    override fun readInput(): TimerLoop {
+        println("updating TimerLoop...")
+
+        val timerLoop = TimerLoop(editTxtRepeats.text.toString().toIntOrNull()?:1)
+        for(holder in adapter!!.holders) {
+            timerLoop.timer.add(holder.readInput())
+        }
+
+        println("updated TimerLoop: ${editTxtRepeats.text.toString().toIntOrNull()?:1}")
+        return adapter!!.timer
+    }
 }
