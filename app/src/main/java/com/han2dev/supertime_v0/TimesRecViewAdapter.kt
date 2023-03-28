@@ -119,6 +119,7 @@ class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : Re
         notifyDataSetChanged() //TODO: change to notifyItemInserted(position)
     }
 
+    //TODO: consider removing/replacing
     fun updateTimer(): TimerLoop {
         for (holder in holders) {
             if (holder is TimerElemHolder) {
@@ -139,6 +140,14 @@ class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : Re
         }
 
         return timer
+    }
+
+
+    fun readInput(){
+        timer = TimerLoop()
+        for(holder in holders) {
+            add(holder.readInput())
+        }
     }
 
 

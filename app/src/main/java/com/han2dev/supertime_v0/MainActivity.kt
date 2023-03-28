@@ -9,6 +9,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import com.google.gson.Gson
 
 
 class MainActivity : AppCompatActivity() {
@@ -52,10 +55,19 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.optSave -> Toast.makeText(this, "Not yet implemented.", Toast.LENGTH_SHORT).show()
+            R.id.optSave -> save()
             R.id.optAddTimer -> adapter.add(TimerElem())
             R.id.optAddLoop -> adapter.add(TimerLoop())
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun save() {
+        //val json1 = Json.encodeToString(adapter.timer)
+        adapter.updateTimer()
+        val gson = Gson()
+        val json = gson.toJson(adapter.timer)
+        println(json)
+        Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show()
     }
 }

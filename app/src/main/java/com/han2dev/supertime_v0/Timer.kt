@@ -5,6 +5,8 @@ import android.media.AudioAttributes
 import android.media.SoundPool
 import android.os.CountDownTimer
 import android.widget.TextView
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 fun formatTime(millis: Long): String {
     //formatting from ms to MM:SS.cs
@@ -17,6 +19,7 @@ fun formatTime(millis: Long): String {
 }
 
 
+@Serializable
 abstract class Timer: java.io.Serializable {
     protected lateinit var parent: TimerParent
     abstract fun start(activity: Activity, parent: TimerParent)
@@ -29,12 +32,13 @@ interface TimerParent {
     fun next()
 }
 
+@Serializable
 class TimerLoop(var repeats: Int = 1) : Timer(), TimerParent {
-    private lateinit var activity: Activity
+    @Transient private lateinit var activity: Activity
     private var repeatsLeft: Int = 1
     private var currentTimer: Int = 0
     var timer: MutableList<Timer> = mutableListOf()
-    private lateinit var txtCycles: TextView
+    @Transient private lateinit var txtCycles: TextView
 
     override fun start(activity: Activity, parent: TimerParent) {
         this.activity = activity

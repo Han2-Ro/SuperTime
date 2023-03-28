@@ -111,7 +111,7 @@ class LoopHolder(itemView: View, parentAdapter: TimesRecViewAdapter) : TimerView
         for(holder in adapter!!.holders) {
             timerLoop.timer.add(holder.readInput())
         }
-
+        adapter!!.timer = timerLoop
         println("updated TimerLoop: ${editTxtRepeats.text.toString().toIntOrNull()?:1}")
         return adapter!!.timer
     }
