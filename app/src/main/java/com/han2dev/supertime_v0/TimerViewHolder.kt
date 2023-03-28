@@ -18,6 +18,7 @@ abstract class TimerViewHolder(itemView: View, parentAdapter: TimesRecViewAdapte
     private val btnOptions: ImageView = itemView.findViewById(R.id.btnOptions)
 
     init {
+        //TODO: add option to add timer/loop
         btnOptions.setOnClickListener {v: View ->
             val popup = PopupMenu(itemView.context, v)
             popup.setOnMenuItemClickListener {item: MenuItem ->
@@ -58,16 +59,8 @@ abstract class TimerViewHolder(itemView: View, parentAdapter: TimesRecViewAdapte
         btnUp.setOnClickListener {
             val currentPos: Int = adapterPosition
             if (currentPos > 0) {
-                val target: Timer = parentAdapter.timer.timer[currentPos - 1]
-                if (target is TimerLoop) {
-                    target.timer.add(parentAdapter.timer.timer[currentPos])
-                    parentAdapter.remove(currentPos)
-                    parentAdapter.notifyAllDataSetChanged()
-                }
-                else {
-                    Collections.swap(parentAdapter.timer.timer, currentPos, currentPos - 1)
-                    parentAdapter.notifyItemMoved(currentPos, currentPos - 1)
-                }
+                Collections.swap(parentAdapter.timer.timer, currentPos, currentPos - 1)
+                parentAdapter.notifyItemMoved(currentPos, currentPos - 1)
 
             } else {
                 Toast.makeText(parentAdapter.context, "already at the top", Toast.LENGTH_SHORT).show()
