@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_alarm">
+
+    <fragment
+        android:id="@+id/navigation_alarm"
+        android:name="com.han2dev.supertime_v0.ui.alarm.AlarmFragment"
+        android:label="Alarm"
+        tools:layout="@layout/fragment_alarm" />
+
+    <fragment
+        android:id="@+id/navigation_timer"
+        android:name="com.han2dev.supertime_v0.ui.timer.TimerFragment"
+        android:label="Timer"
+        tools:layout="@layout/fragment_timer" />
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.han2dev.supertime_v0.ui.settings.SettingsFragment"
+        android:label="Settings"
+        tools:layout="@layout/fragment_settings" />
+</navigation>

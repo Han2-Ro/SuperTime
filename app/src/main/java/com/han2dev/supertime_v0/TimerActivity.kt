@@ -55,7 +55,7 @@ class TimerActivity : AppCompatActivity(), TimerParent, java.io.Serializable {
         }
 
         btnCancel.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, TimerSetupActivity::class.java)
             startActivity(intent)
         }
 
