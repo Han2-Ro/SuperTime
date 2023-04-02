@@ -8,7 +8,9 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
-import com.han2dev.supertime_v0.R
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.han2dev.supertime_v0.*
 import com.han2dev.supertime_v0.databinding.FragmentTimerBinding
 
 class TimerFragment : Fragment() {
@@ -18,6 +20,9 @@ class TimerFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: TimerSelectRecViewAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,6 +46,13 @@ class TimerFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        recyclerView = view.findViewById(R.id.recViewTimerSelect)
+        adapter = TimerSelectRecViewAdapter()
+
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(context)
+
         // The usage of an interface lets you inject your own implementation
         val menuHost: MenuHost = requireActivity()
 
@@ -56,6 +68,9 @@ class TimerFragment : Fragment() {
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 // Handle the menu selection
+                when (menuItem.itemId) {
+                    R.id.optAddTimer -> addNewTimer()
+                }
                 return true
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
@@ -64,5 +79,9 @@ class TimerFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun addNewTimer() {
+        adapter.add("This is a title.")
     }
 }
