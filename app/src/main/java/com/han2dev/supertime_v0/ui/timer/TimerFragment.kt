@@ -1,12 +1,14 @@
 package com.han2dev.supertime_v0.ui.timer
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import com.han2dev.supertime_v0.R
 import com.han2dev.supertime_v0.databinding.FragmentTimerBinding
 
 class TimerFragment : Fragment() {
@@ -22,6 +24,7 @@ class TimerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        //super.onCreateView(inflater, container, savedInstanceState)
         val timerViewModel =
             ViewModelProvider(this).get(TimerViewModel::class.java)
 
@@ -33,6 +36,29 @@ class TimerFragment : Fragment() {
             textView.text = it
         }
         return root
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        // The usage of an interface lets you inject your own implementation
+        val menuHost: MenuHost = requireActivity()
+
+        // Add menu items without using the Fragment Menu APIs
+        // Note how we can tie the MenuProvider to the viewLifecycleOwner
+        // and an optional Lifecycle.State (here, RESUMED) to indicate when
+        // the menu should be visible
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                // Add menu items here
+                menuInflater.inflate(R.menu.timer_selection_menu, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                // Handle the menu selection
+                return true
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     override fun onDestroyView() {
