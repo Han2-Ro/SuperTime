@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.han2dev.supertime_v0.*
 import com.han2dev.supertime_v0.databinding.FragmentTimerBinding
 
-class TimerFragment : Fragment() {
+class TimerFragment : Fragment(), NewTimerDialog.NewTimerDialogListener  {
 
     private var _binding: FragmentTimerBinding? = null
 
@@ -31,7 +31,7 @@ class TimerFragment : Fragment() {
     ): View {
         //super.onCreateView(inflater, container, savedInstanceState)
         val timerViewModel =
-            ViewModelProvider(this).get(TimerViewModel::class.java)
+            ViewModelProvider(this)[TimerViewModel::class.java]
 
         _binding = FragmentTimerBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -53,13 +53,8 @@ class TimerFragment : Fragment() {
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        // The usage of an interface lets you inject your own implementation
         val menuHost: MenuHost = requireActivity()
 
-        // Add menu items without using the Fragment Menu APIs
-        // Note how we can tie the MenuProvider to the viewLifecycleOwner
-        // and an optional Lifecycle.State (here, RESUMED) to indicate when
-        // the menu should be visible
         menuHost.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 // Add menu items here
@@ -69,7 +64,8 @@ class TimerFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 // Handle the menu selection
                 when (menuItem.itemId) {
-                    R.id.optAddTimer -> addNewTimer()
+                    //TODO: default title
+                    R.id.optAddTimer -> NewTimerDialog(this@TimerFragment).show(parentFragmentManager, "NewTimerDialog")
                 }
                 return true
             }
@@ -81,7 +77,7 @@ class TimerFragment : Fragment() {
         _binding = null
     }
 
-    private fun addNewTimer() {
-        adapter.add("This is a title.")
+    override fun addNewTimer(title: String) {
+        adapter.add(title)
     }
 }
