@@ -11,13 +11,14 @@
         android:text="Title:"
         android:textSize="20sp"
         android:visibility="visible"/>
-    
+
     <EditText
         android:id="@+id/editTitle"
-        android:hint="untitled 1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="untitled 1"
         android:importantForAutofill="no"
-        android:inputType="text" />
+        android:inputType="text"
+        android:minHeight="48dp" />
     
 </LinearLayout>

@@ -64,8 +64,8 @@ class TimerFragment : Fragment(), NewTimerDialog.NewTimerDialogListener  {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 // Handle the menu selection
                 when (menuItem.itemId) {
-                    //TODO: default title
-                    R.id.optAddTimer -> NewTimerDialog(this@TimerFragment).show(parentFragmentManager, "NewTimerDialog")
+                    // TODO: "dynamic" default title
+                    R.id.optAddTimer -> NewTimerDialog(this@TimerFragment, "untitled 1").show(parentFragmentManager, "NewTimerDialog")
                 }
                 return true
             }
