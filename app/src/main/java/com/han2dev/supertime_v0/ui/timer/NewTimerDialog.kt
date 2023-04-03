@@ -32,6 +32,6 @@ class NewTimerDialog(private val listener: NewTimerDialogListener, private val d
     }
 
     interface NewTimerDialogListener {
-        fun addNewTimer(title: String)
+        fun addNewTimer(name: String)
     }
 }

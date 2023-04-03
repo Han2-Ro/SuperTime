@@ -5,11 +5,9 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
 
 
 class TimerSetupActivity : AppCompatActivity() {
@@ -53,19 +51,11 @@ class TimerSetupActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.optSave -> save()
+            R.id.optSave -> SavesManager.save(adapter.updateTimer(), "<name>")
             R.id.optAddTimer -> adapter.add(TimerElem())
             R.id.optAddLoop -> adapter.add(TimerLoop())
         }
         return super.onOptionsItemSelected(item)
     }
 
-    private fun save() {
-        //val json1 = Json.encodeToString(adapter.timer)
-        adapter.updateTimer()
-        val gson = Gson()
-        val json = gson.toJson(adapter.timer)
-        println(json)
-        Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show()
-    }
 }

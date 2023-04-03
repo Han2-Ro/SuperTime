@@ -1,5 +1,6 @@
 package com.han2dev.supertime_v0
 
+import android.content.Context
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
@@ -11,10 +12,17 @@ import com.han2dev.supertime_v0.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        lateinit var context: Context
+    }
+
     private lateinit var binding: ActivityMainBinding
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        context = applicationContext
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)

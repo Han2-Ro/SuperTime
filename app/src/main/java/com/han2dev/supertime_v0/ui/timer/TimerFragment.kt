@@ -77,7 +77,8 @@ class TimerFragment : Fragment(), NewTimerDialog.NewTimerDialogListener  {
         _binding = null
     }
 
-    override fun addNewTimer(title: String) {
-        adapter.add(title)
+    override fun addNewTimer(name: String) {
+        SavesManager.save(TimerElem(12), name)
+        adapter.add(name)
     }
 }
