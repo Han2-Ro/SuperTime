@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -68,7 +67,7 @@ class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : Re
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when (timer.timer[position]) {
+        return when (timer.childrenTimers[position]) {
             is TimerElem -> ViewType.TIME.ordinal
             is TimerLoop -> ViewType.LOOP.ordinal
             else -> -1
@@ -80,8 +79,8 @@ class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : Re
         holder.txtPosition.text = "${position+1}."
 
         if (holder is TimerElemHolder) {
-            holder.edtTxtMin.setText((timer.timer[position] as TimerElem).getMinutes().toString())
-            holder.edtTxtSec.setText((timer.timer[position] as TimerElem).getSeconds().toString())
+            holder.edtTxtMin.setText((timer.childrenTimers[position] as TimerElem).getMinutes().toString())
+            holder.edtTxtSec.setText((timer.childrenTimers[position] as TimerElem).getSeconds().toString())
         }
 
         //TODO: consider doing this in constructor of TimerViewHolder
@@ -110,12 +109,12 @@ class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : Re
 
     override fun getItemCount(): Int {
         println("holders: ${holders.size}")
-        return timer.timer.size
+        return timer.childrenTimers.size
     }
 
 
     fun add(new: Timer) {
-        timer.timer.add(new)
+        timer.childrenTimers.add(new)
         notifyDataSetChanged() //TODO: change to notifyItemInserted(position)
     }
 
@@ -126,15 +125,15 @@ class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : Re
                 println("updating TimerElem...")
                 val min: Long = holder.edtTxtMin.text.toString().toLongOrNull() ?: 0
                 val sec: Long = holder.edtTxtSec.text.toString().toLongOrNull() ?: 0
-                timer.timer[holder.adapterPosition] = TimerElem((min * 60 + sec) * 1000)
+                timer.childrenTimers[holder.adapterPosition] = TimerElem((min * 60 + sec) * 1000)
                 println("updated TimerElem: ${(min * 60 + sec) * 1000}")
             }
             else if (holder is LoopHolder) {
 
                 println("updating TimerLoop...")
                 val adapter: TimesRecViewAdapter = holder.recView.adapter as TimesRecViewAdapter
-                timer.timer[holder.adapterPosition] = adapter.updateTimer()
-                (timer.timer[holder.adapterPosition] as TimerLoop).repeats = holder.editTxtRepeats.text.toString().toIntOrNull()?:1
+                timer.childrenTimers[holder.adapterPosition] = adapter.updateTimer()
+                (timer.childrenTimers[holder.adapterPosition] as TimerLoop).repeats = holder.editTxtRepeats.text.toString().toIntOrNull()?:1
                 println("updated TimerLoop: ${holder.editTxtRepeats.text.toString().toIntOrNull()?:1}")
             }
         }
@@ -159,18 +158,18 @@ class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : Re
         if (target is TimerElemHolder) {
             if (fromPosition < toPosition) {
                 for (i in fromPosition until toPosition) {
-                    Collections.swap(timer.timer, i, i + 1)
+                    Collections.swap(timer.childrenTimers, i, i + 1)
                 }
             } else {
                 for (i in fromPosition downTo toPosition + 1) {
-                    Collections.swap(timer.timer, i, i - 1)
+                    Collections.swap(timer.childrenTimers, i, i - 1)
                 }
             }
 
             notifyItemMoved(fromPosition, toPosition)
         }
         else if (target is LoopHolder) {
-            target.adapter!!.add(timer.timer[fromPosition])
+            target.adapter!!.add(timer.childrenTimers[fromPosition])
             remove(fromPosition)
             notifyItemRemoved(fromPosition)
         }
@@ -179,7 +178,7 @@ class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : Re
     fun remove(position: Int) {
         //TODO: decide if updateTimer should be called
         //updateTimer()
-        timer.timer.removeAt(position)
+        timer.childrenTimers.removeAt(position)
         notifyItemRemoved(position)
     }
 }

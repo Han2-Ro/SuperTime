@@ -48,10 +48,14 @@ class TimerFragment : Fragment(), NewTimerDialog.NewTimerDialogListener  {
         super.onViewCreated(view, savedInstanceState)
 
         recyclerView = view.findViewById(R.id.recViewTimerSelect)
-        adapter = TimerSelectRecViewAdapter()
+        adapter = TimerSelectRecViewAdapter(requireActivity())
 
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(context)
+
+        SavesManager.loadAll().forEach {
+            adapter.add(it.name)
+        }
 
         val menuHost: MenuHost = requireActivity()
 

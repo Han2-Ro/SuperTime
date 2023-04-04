@@ -20,7 +20,7 @@ fun formatTime(millis: Long): String {
 
 
 @Serializable
-abstract class Timer: java.io.Serializable {
+abstract class Timer(val name: String) : java.io.Serializable {
     protected lateinit var parent: TimerParent
     abstract fun start(activity: Activity, parent: TimerParent)
     abstract fun pause()
@@ -32,12 +32,11 @@ interface TimerParent {
     fun next()
 }
 
-@Serializable
-class TimerLoop(var repeats: Int = 1) : Timer(), TimerParent {
+class TimerLoop(var repeats: Int = 1, name: String  = "untitled") : Timer(name), TimerParent {
     @Transient private lateinit var activity: Activity
     private var repeatsLeft: Int = 1
     private var currentTimer: Int = 0
-    var timer: MutableList<Timer> = mutableListOf()
+    var childrenTimers: MutableList<Timer> = mutableListOf()
     @Transient private lateinit var txtCycles: TextView
 
     override fun start(activity: Activity, parent: TimerParent) {
@@ -49,29 +48,29 @@ class TimerLoop(var repeats: Int = 1) : Timer(), TimerParent {
         txtCycles  = activity.findViewById(R.id.txtCycles)
         txtCycles.text = repeatsLeft.toString()//txtCycles.text.toString().replace("<n>;", repeats.toString())
 
-        if(timer.size > currentTimer) {
-            timer[currentTimer].start(activity, this)
+        if(childrenTimers.size > currentTimer) {
+            childrenTimers[currentTimer].start(activity, this)
         }
     }
 
     override fun pause() {
-        timer[currentTimer].pause()
+        childrenTimers[currentTimer].pause()
     }
 
     override fun resume() {
-        timer[currentTimer].resume()
+        childrenTimers[currentTimer].resume()
     }
 
     override fun next() {
         currentTimer++
-        if(currentTimer < timer.size){
-            timer[currentTimer].start(activity, this)
+        if(currentTimer < childrenTimers.size){
+            childrenTimers[currentTimer].start(activity, this)
         }
         else{
             currentTimer = 0
             if(repeatsLeft > 1){
                 repeatsLeft--
-                timer[currentTimer].start(activity, this)
+                childrenTimers[currentTimer].start(activity, this)
                 txtCycles.text = repeatsLeft.toString()//txtCycles.text.toString().replace("<n>", repeats.toString())
             }
             else{
@@ -83,22 +82,27 @@ class TimerLoop(var repeats: Int = 1) : Timer(), TimerParent {
     override fun clone(): TimerLoop {
         println("Copied Loop")
         val copy = TimerLoop(repeats)
-        copy.timer = timer.toMutableList()
+        copy.childrenTimers = childrenTimers.toMutableList()
         return copy
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is TimerLoop) return false
+        return other.repeats == repeats && other.childrenTimers == childrenTimers
     }
 }
 
 
-class TimerElem(val time: Long = 0) : Timer() {
+class TimerElem(val duration: Long = 0, name: String  = "untitled") : Timer(name) {
     private lateinit var cdTimer: CountDownTimer
     private lateinit var soundPool: SoundPool
     private var sound1: Int = -1
     private lateinit var txtTime: TextView
-    private var timeRemaining: Long = time
+    private var timeRemaining: Long = duration
 
     override fun start(activity: Activity, parent: TimerParent) {
         this.parent = parent
-        timeRemaining = time
+        timeRemaining = duration
         txtTime = activity.findViewById(R.id.txtTime)
 
         // set up soundPool
@@ -115,7 +119,7 @@ class TimerElem(val time: Long = 0) : Timer() {
         sound1 = soundPool.load(activity, R.raw.sound1, 1)
 
         //start timer
-        timeRemaining = time
+        timeRemaining = duration
         resume()
     }
 
@@ -154,14 +158,20 @@ class TimerElem(val time: Long = 0) : Timer() {
 
     override fun clone(): TimerElem {
         println("copied TimerElem")
-        return TimerElem(time)
+        return TimerElem(duration)
     }
 
     fun getSeconds(): Long {
-        return time / 1000 % 60
+        return duration / 1000 % 60
     }
 
     fun getMinutes(): Long {
-        return time / (1000 * 60)
+        return duration / (1000 * 60)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is TimerElem) return false
+
+        return other.duration == duration
     }
 }

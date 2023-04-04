@@ -23,12 +23,12 @@ class TimerActivity : AppCompatActivity(), TimerParent, java.io.Serializable {
 
         txtTime = findViewById(R.id.txtTime)
 
-        val timer: Timer? =  if (Build.VERSION.SDK_INT >= 33) {
+        val timer: Timer = SavesManager.timerFromJson(intent.getStringExtra("timer_json")?: throw NullPointerException("Found no \"timer_json\": String in intent extra."))
+            /*if (Build.VERSION.SDK_INT >= 33) {
             intent.getSerializableExtra("timer", Timer::class.java)
         } else {
             intent.getSerializableExtra("timer") as Timer
-        }
-        if (timer == null) throw NullPointerException("Found no \"timer\": Timer in intent extra.")
+        }*/
 
 
         btnPause = findViewById(R.id.btnPause)
