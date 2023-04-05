@@ -13,11 +13,20 @@ object SavesManager {
         .registerTypeAdapter(Timer::class.java, TimerDeserializer())
         .create()
 
-    fun save(timer: Timer, name: String) {
+    /**
+     * Saves timer to file
+     * @param timer timer to save. Its name + ".timer" will be the file name.
+     */
+    fun save(timer: Timer) {
         val json = timerToJson(timer)
-        saveJson(json, name)
+        saveJson(json, timer.name)
     }
 
+    /**
+     * Loads timer from file
+     * @param name name of the timer to load (with or without .timer extension)
+     * @return Timer object
+     */
     fun load(name: String) : Timer{
         val json = loadJson(name)
         return timerFromJson(json)
@@ -26,13 +35,23 @@ object SavesManager {
     private fun saveJson(json: String, name: String) {
         println(json + "\nstored to " + MainActivity.context.filesDir)
 
-        MainActivity.context.openFileOutput(name, Context.MODE_PRIVATE).use {
+        var fileName = name
+        if (!name.endsWith(".timer")) {
+            fileName = "$name.timer"
+        }
+
+        MainActivity.context.openFileOutput(fileName, Context.MODE_PRIVATE).use {
             it.write(json.toByteArray())
         }
     }
 
     fun loadJson(name: String): String {
-        val json: String = MainActivity.context.openFileInput(name).bufferedReader().use {
+        var fileName = name
+        if (!name.endsWith(".timer")) {
+            fileName = "$name.timer"
+        }
+
+        val json: String = MainActivity.context.openFileInput(fileName).bufferedReader().use {
             it.readText()
         }
         println(json + "\nloaded from " + MainActivity.context.filesDir)
@@ -42,21 +61,31 @@ object SavesManager {
     fun loadAll() : List<Timer> {
         val timers = mutableListOf<Timer>()
         val files = MainActivity.context.filesDir.listFiles()
-        println("files: $files")
+        println("files: ${files.forEach { it.name }}")
         for (file in files) {
-            timers.add(load(file.name))
+            if (file.name.endsWith(".timer")) {
+                timers.add(load(file.name))
+            }
         }
         return timers
     }
 
     fun delete(name: String) {
-        if (MainActivity.context.deleteFile(name)) {
+        var fileName = name
+        if (!name.endsWith(".timer")) {
+            fileName = "$name.timer"
+        }
+
+        if (MainActivity.context.deleteFile(fileName)) {
             Toast.makeText(MainActivity.context, "Deleted", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(MainActivity.context, "Error", Toast.LENGTH_SHORT).show()
         }
     }
 
+    /**
+     * Deletes all saved timers
+     */
     fun deleteAll() {
         val files = MainActivity.context.filesDir.listFiles()
         for (file in files) {

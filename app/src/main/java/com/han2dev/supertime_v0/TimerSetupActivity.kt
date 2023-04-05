@@ -19,8 +19,18 @@ class TimerSetupActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_timer_setup)
 
+        val json = intent.getStringExtra("timer_json")
+            ?: throw NullPointerException("Found no \"timer_json\": String in intent extra.")
+        println("json from intent: $json")
+        val timer: Timer = SavesManager.timerFromJson(json)
+
         recyclerView = findViewById(R.id.rootRecView)
         adapter = TimesRecViewAdapter(this, recyclerView)
+        if (timer is TimerLoop) {
+            adapter.timer = timer
+        } else {
+            adapter.add(timer)
+        }
 
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -51,7 +61,7 @@ class TimerSetupActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.optSave -> SavesManager.save(adapter.updateTimer(), "<name>")
+            R.id.optSave -> SavesManager.save(adapter.updateTimer())
             R.id.optAddTimer -> adapter.add(TimerElem())
             R.id.optAddLoop -> adapter.add(TimerLoop())
         }

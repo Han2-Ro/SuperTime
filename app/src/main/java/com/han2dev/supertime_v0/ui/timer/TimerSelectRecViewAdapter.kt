@@ -1,16 +1,18 @@
-package com.han2dev.supertime_v0
+package com.han2dev.supertime_v0.ui.timer
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import com.han2dev.supertime_v0.R
+import com.han2dev.supertime_v0.SavesManager
+import com.han2dev.supertime_v0.TimerActivity
+import com.han2dev.supertime_v0.TimerSetupActivity
 
 class TimerSelectRecViewAdapter(val activity: FragmentActivity) : RecyclerView.Adapter<TimerSelectRecViewAdapter.TimerSelectViewHolder>() {
     private var titles: MutableList<String> = mutableListOf()
@@ -31,24 +33,45 @@ class TimerSelectRecViewAdapter(val activity: FragmentActivity) : RecyclerView.A
 
         //set up buttons
         holder.btnPlay.setOnClickListener {
-            val json = SavesManager.loadJson(titles[position])
-            val intent = Intent(activity, TimerActivity::class.java)
-            intent.putExtra("timer_json", json)
-            activity.startActivity(intent)
+            startActivityWithTimer(position, TimerActivity::class.java)
         }
 
         holder.btnEdit.setOnClickListener {
-            Toast.makeText(MainActivity.context, "Not yet implemented.", Toast.LENGTH_SHORT).show()
+            startActivityWithTimer(position, TimerSetupActivity::class.java)
         }
 
         holder.btnDelete.setOnClickListener {
             SavesManager.delete(titles[position])
+            titles.removeAt(position)
+            notifyItemRemoved(position)
         }
+    }
+
+    /**
+     * Starts an activity with the timer json as an extra.
+     * @param position the position of the timer in the recycler view
+     * @param activityClass the class of the activity to start
+     */
+    private fun startActivityWithTimer(
+        position: Int,
+        activityClass: Class<out Activity>
+    ) {
+        val json = SavesManager.loadJson(titles[position])
+        val intent = Intent(activity, activityClass)
+        intent.putExtra("timer_json", json)
+        activity.startActivity(intent)
     }
 
     fun add(new: String) {
         titles.add(new)
-        notifyDataSetChanged() //TODO: change to notifyItemInserted(position)
+        notifyItemInserted(titles.size-1)
+    }
+
+    fun refresh() {
+        titles.clear()
+        SavesManager.loadAll().forEach {
+            add(it.name)
+        }
     }
 
     class TimerSelectViewHolder(itemView: View) : ViewHolder(itemView) {

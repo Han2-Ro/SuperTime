@@ -1,8 +1,6 @@
 package com.han2dev.supertime_v0
 
 import android.app.Activity
-import android.media.AudioAttributes
-import android.media.SoundPool
 import android.os.CountDownTimer
 import android.widget.TextView
 import kotlinx.serialization.Serializable
@@ -95,8 +93,6 @@ class TimerLoop(var repeats: Int = 1, name: String  = "untitled") : Timer(name),
 
 class TimerElem(val duration: Long = 0, name: String  = "untitled") : Timer(name) {
     private lateinit var cdTimer: CountDownTimer
-    private lateinit var soundPool: SoundPool
-    private var sound1: Int = -1
     private lateinit var txtTime: TextView
     private var timeRemaining: Long = duration
 
@@ -104,19 +100,6 @@ class TimerElem(val duration: Long = 0, name: String  = "untitled") : Timer(name
         this.parent = parent
         timeRemaining = duration
         txtTime = activity.findViewById(R.id.txtTime)
-
-        // set up soundPool
-        val audioAttributes: AudioAttributes = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .build()
-
-        soundPool = SoundPool.Builder()
-            .setMaxStreams(6)
-            .setAudioAttributes(audioAttributes)
-            .build()
-
-        sound1 = soundPool.load(activity, R.raw.sound1, 1)
 
         //start timer
         timeRemaining = duration
@@ -151,7 +134,7 @@ class TimerElem(val duration: Long = 0, name: String  = "untitled") : Timer(name
 
     fun onTimerEnd() {
         println("finished")
-        soundPool.play(sound1, 1f, 1f, 0, 0, 1f)
+        SoundManager.playSound(SoundManager.sound1)
         txtTime.text = "00:00.00"
         parent.next()
     }

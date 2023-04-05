@@ -1,14 +1,13 @@
 package com.han2dev.supertime_v0
 
 import android.content.Intent
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 
-class TimerActivity : AppCompatActivity(), TimerParent, java.io.Serializable {
+class TimerActivity : AppCompatActivity(), TimerParent {
 
     private lateinit var txtTime: TextView
 
@@ -23,12 +22,10 @@ class TimerActivity : AppCompatActivity(), TimerParent, java.io.Serializable {
 
         txtTime = findViewById(R.id.txtTime)
 
-        val timer: Timer = SavesManager.timerFromJson(intent.getStringExtra("timer_json")?: throw NullPointerException("Found no \"timer_json\": String in intent extra."))
-            /*if (Build.VERSION.SDK_INT >= 33) {
-            intent.getSerializableExtra("timer", Timer::class.java)
-        } else {
-            intent.getSerializableExtra("timer") as Timer
-        }*/
+        val json = intent.getStringExtra("timer_json")
+            ?: throw NullPointerException("Found no \"timer_json\": String in intent extra.")
+        println("json from intent: $json")
+        val timer: Timer = SavesManager.timerFromJson(json)
 
 
         btnPause = findViewById(R.id.btnPause)
@@ -55,7 +52,7 @@ class TimerActivity : AppCompatActivity(), TimerParent, java.io.Serializable {
         }
 
         btnCancel.setOnClickListener {
-            val intent = Intent(this, TimerSetupActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
 

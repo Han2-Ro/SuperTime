@@ -2,7 +2,6 @@ package com.han2dev.supertime_v0.ui.timer
 
 import android.os.Bundle
 import android.view.*
-import android.widget.TextView
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -36,10 +35,6 @@ class TimerFragment : Fragment(), NewTimerDialog.NewTimerDialogListener  {
         _binding = FragmentTimerBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textDashboard
-        timerViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
         return root
     }
 
@@ -53,9 +48,7 @@ class TimerFragment : Fragment(), NewTimerDialog.NewTimerDialogListener  {
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        SavesManager.loadAll().forEach {
-            adapter.add(it.name)
-        }
+        adapter.refresh()
 
         val menuHost: MenuHost = requireActivity()
 
@@ -70,6 +63,11 @@ class TimerFragment : Fragment(), NewTimerDialog.NewTimerDialogListener  {
                 when (menuItem.itemId) {
                     // TODO: "dynamic" default title
                     R.id.optAddTimer -> NewTimerDialog(this@TimerFragment, "untitled 1").show(parentFragmentManager, "NewTimerDialog")
+
+                    R.id.optDeleteAll -> {
+                        SavesManager.deleteAll()
+                        adapter.refresh()
+                    }
                 }
                 return true
             }
@@ -82,7 +80,9 @@ class TimerFragment : Fragment(), NewTimerDialog.NewTimerDialogListener  {
     }
 
     override fun addNewTimer(name: String) {
-        SavesManager.save(TimerElem(12), name)
+        val timer = TimerLoop(1, name)
+        timer.childrenTimers.add(TimerElem(10000))
+        SavesManager.save(timer)
         adapter.add(name)
     }
 }
