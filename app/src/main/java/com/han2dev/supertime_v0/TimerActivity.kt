@@ -22,6 +22,7 @@ fun formatTime(millis: Long): String {
 class TimerActivity : AppCompatActivity(), TimerParent {
 
     private lateinit var txtTime: TextView
+    private lateinit var txtCycles: TextView
 
     lateinit var btnPause: Button
     lateinit var btnResume: Button
@@ -33,6 +34,7 @@ class TimerActivity : AppCompatActivity(), TimerParent {
         setContentView(R.layout.activity_timer)
 
         txtTime = findViewById(R.id.txtTime)
+        txtCycles = findViewById(R.id.txtCycles)
 
         val json = intent.getStringExtra("timer_json")
             ?: throw NullPointerException("Found no \"timer_json\": String in intent extra.")
@@ -87,8 +89,13 @@ class TimerActivity : AppCompatActivity(), TimerParent {
         btnRestart.visibility = View.VISIBLE
     }
 
-    override fun update(time: Long) {
+    override fun update(time: Long, cyclesLeft: MutableList<Int>) {
         txtTime.text = formatTime(time)
+        var text = ""
+        for (number in cyclesLeft) {
+            text = "$number,$text" //TODO: consider formatting
+        }
+        txtCycles.text = text
     }
 
     /*

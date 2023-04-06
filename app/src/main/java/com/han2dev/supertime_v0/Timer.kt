@@ -1,12 +1,8 @@
 package com.han2dev.supertime_v0
 
 import android.os.CountDownTimer
-import android.widget.TextView
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 
 
-@Serializable
 abstract class Timer(val name: String) : java.io.Serializable {
     protected lateinit var parent: TimerParent
     abstract fun start(parent: TimerParent)
@@ -17,7 +13,7 @@ abstract class Timer(val name: String) : java.io.Serializable {
 
 interface TimerParent {
     fun next()
-    fun update(time: Long)
+    fun update(time: Long, cyclesLeft: MutableList<Int>)
 }
 
 class TimerLoop(var repeats: Int = 1, name: String  = "untitled") : Timer(name), TimerParent {
@@ -60,8 +56,9 @@ class TimerLoop(var repeats: Int = 1, name: String  = "untitled") : Timer(name),
         }
     }
 
-    override fun update(time: Long) {
-        parent.update(time)
+    override fun update(time: Long, cyclesLeft: MutableList<Int>) {
+        cyclesLeft.add(repeatsLeft)
+        parent.update(time, cyclesLeft)
     }
 
     override fun clone(): TimerLoop {
@@ -99,7 +96,7 @@ class TimerElem(val duration: Long = 0, name: String  = "untitled") : Timer(name
         // set up timer
         cdTimer = object : CountDownTimer(timeRemaining,10){
             override fun onTick(millisUntilFinished: Long) {
-                parent.update(millisUntilFinished)
+                parent.update(millisUntilFinished, mutableListOf())
                 timeRemaining = millisUntilFinished
             }
             override fun onFinish() {
@@ -114,7 +111,7 @@ class TimerElem(val duration: Long = 0, name: String  = "untitled") : Timer(name
     fun onTimerEnd() {
         println("finished")
         SoundManager.playSound(SoundManager.sound1)
-        parent.update(0)
+        parent.update(0, mutableListOf())
         parent.next()
     }
 
