@@ -7,6 +7,18 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 
+
+fun formatTime(millis: Long): String {
+    //formatting from ms to MM:SS.cs
+    val centis: Long = millis / 10 % 100
+    val second: Long = millis / 1000 % 60
+    val minute: Long = millis / (1000 * 60) //% 60
+    //val hour: Long = millis / (1000 * 60 * 60) % 24
+
+    return String.format("%02d:%02d.%02d", minute, second, centis)
+}
+
+
 class TimerActivity : AppCompatActivity(), TimerParent {
 
     private lateinit var txtTime: TextView
@@ -57,22 +69,26 @@ class TimerActivity : AppCompatActivity(), TimerParent {
         }
 
         btnRestart.setOnClickListener {
-            timer.start(this, this)
+            timer.start(this)
 
             btnRestart.visibility = View.GONE
             btnCancel.visibility = View.GONE
             btnPause.visibility = View.VISIBLE
         }
 
-        timer.start(this, this)
+        timer.start(this)
     }
 
     override fun next() {
-        txtTime.text = "Finished!"
+        //txtTime.text = "Finished!"
         btnPause.visibility = View.GONE
         btnResume.visibility = View.GONE
         btnCancel.visibility = View.VISIBLE
         btnRestart.visibility = View.VISIBLE
+    }
+
+    override fun update(time: Long) {
+        txtTime.text = formatTime(time)
     }
 
     /*

@@ -118,7 +118,7 @@ class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : Re
         notifyDataSetChanged() //TODO: change to notifyItemInserted(position)
     }
 
-    //TODO: consider removing/replacing
+    //TODO: consider removing/replacing cause that shit is buggy
     fun updateTimer(): TimerLoop {
         for (holder in holders) {
             if (holder is TimerElemHolder) {
