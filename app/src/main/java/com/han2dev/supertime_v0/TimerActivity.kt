@@ -8,17 +8,6 @@ import android.widget.Button
 import android.widget.TextView
 
 
-fun formatTime(millis: Long): String {
-    //formatting from ms to MM:SS.cs
-    val centis: Long = millis / 10 % 100
-    val second: Long = millis / 1000 % 60
-    val minute: Long = millis / (1000 * 60) //% 60
-    //val hour: Long = millis / (1000 * 60 * 60) % 24
-
-    return String.format("%02d:%02d.%02d", minute, second, centis)
-}
-
-
 class TimerActivity : AppCompatActivity(), TimerParent {
 
     private lateinit var txtTime: TextView
@@ -28,6 +17,8 @@ class TimerActivity : AppCompatActivity(), TimerParent {
     lateinit var btnResume: Button
     lateinit var btnCancel: Button
     lateinit var btnRestart: Button
+
+    var nextTimerEndSound: SoundManager.TimerEndSound? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,12 +81,33 @@ class TimerActivity : AppCompatActivity(), TimerParent {
     }
 
     override fun update(time: Long, cyclesLeft: MutableList<Int>) {
+        //check if sound should be played
+        if(nextTimerEndSound != null && time <= nextTimerEndSound!!.playAtMsLeft){
+            SoundManager.playSound(nextTimerEndSound!!.id)
+            nextTimerEndSound = null
+        }
+
+        //update UI
         txtTime.text = formatTime(time)
         var text = ""
         for (number in cyclesLeft) {
             text = "$number,$text" //TODO: consider formatting
         }
         txtCycles.text = text
+    }
+
+    override fun setSound(sound: SoundManager.TimerEndSound?) {
+        nextTimerEndSound = sound
+    }
+
+    private fun formatTime(millis: Long): String {
+        //formatting from ms to MM:SS.cs
+        val centis: Long = millis / 10 % 100
+        val second: Long = millis / 1000 % 60
+        val minute: Long = millis / (1000 * 60) //% 60
+        //val hour: Long = millis / (1000 * 60 * 60) % 24
+
+        return String.format("%02d:%02d.%02d", minute, second, centis)
     }
 
     /*

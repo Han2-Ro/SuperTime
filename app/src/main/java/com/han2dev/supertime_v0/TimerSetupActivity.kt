@@ -27,7 +27,7 @@ class TimerSetupActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.rootRecView)
         adapter = TimesRecViewAdapter(this, recyclerView)
         if (timer is TimerLoop) {
-            adapter.timer = timer
+            adapter.timerLoop = timer
         } else {
             adapter.add(timer)
         }

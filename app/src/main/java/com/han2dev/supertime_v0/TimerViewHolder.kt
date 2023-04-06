@@ -59,7 +59,7 @@ abstract class TimerViewHolder(itemView: View, parentAdapter: TimesRecViewAdapte
         btnUp.setOnClickListener {
             val currentPos: Int = adapterPosition
             if (currentPos > 0) {
-                Collections.swap(parentAdapter.timer.childrenTimers, currentPos, currentPos - 1)
+                Collections.swap(parentAdapter.timerLoop.childrenTimers, currentPos, currentPos - 1)
                 parentAdapter.notifyItemMoved(currentPos, currentPos - 1)
 
             } else {
@@ -70,8 +70,8 @@ abstract class TimerViewHolder(itemView: View, parentAdapter: TimesRecViewAdapte
         //down Button TODO: make it go and out of loops
         btnDown.setOnClickListener {
             val currentPos: Int = adapterPosition
-            if (currentPos+1 < parentAdapter.timer.childrenTimers.size) {
-                Collections.swap(parentAdapter.timer.childrenTimers, currentPos, currentPos + 1)
+            if (currentPos+1 < parentAdapter.timerLoop.childrenTimers.size) {
+                Collections.swap(parentAdapter.timerLoop.childrenTimers, currentPos, currentPos + 1)
                 parentAdapter.notifyItemMoved(currentPos, currentPos + 1)
             } else {
                 Toast.makeText(parentAdapter.context, "already at the bottom", Toast.LENGTH_SHORT).show()
@@ -111,8 +111,8 @@ class LoopHolder(itemView: View, parentAdapter: TimesRecViewAdapter) : TimerView
         for(holder in adapter!!.holders) {
             timerLoop.childrenTimers.add(holder.readInput())
         }
-        adapter!!.timer = timerLoop
+        adapter!!.timerLoop = timerLoop
         println("updated TimerLoop: ${editTxtRepeats.text.toString().toIntOrNull()?:1}")
-        return adapter!!.timer
+        return adapter!!.timerLoop
     }
 }

@@ -26,4 +26,6 @@ object SoundManager {
         val streamID = soundPool.play(sound, 1f, 1f, 1, 0, 1f)
         println("streamID: $streamID")
     }
+
+    data class TimerEndSound(val id: Int, val playAtMsLeft: Int)
 }
