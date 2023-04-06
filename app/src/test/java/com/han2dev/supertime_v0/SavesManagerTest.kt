@@ -15,7 +15,7 @@ class SavesManagerTest {
     }
 
     @Test
-    fun `TimerLoop with 2 TimerElem`(){
+    fun saveAndLoadTimerLoopWith2TimerElems_returnsSame(){
         val timer1 = TimerLoop(2)
         timer1.childrenTimers.add(TimerElem(5))
         timer1.childrenTimers.add(TimerElem(3))
@@ -27,7 +27,7 @@ class SavesManagerTest {
     }
 
     @Test
-    fun `TimerLoop with 2 TimerLoop`(){
+    fun saveAndLoadTimerTimerLoopWith2TimerLoops_returnsSame(){
         val timer1 = TimerLoop(2)
 
         val loop1 = TimerLoop(1)

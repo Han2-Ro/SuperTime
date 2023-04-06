@@ -81,7 +81,7 @@ class TimerActivity : AppCompatActivity(), TimerParent {
     }
 
     override fun update(time: Long, cyclesLeft: MutableList<Int>) {
-        //check if sound should be played
+        //check if sound should be played TODO: consider doing this in SoundManager for more modularity/separation
         if(nextTimerEndSound != null && time <= nextTimerEndSound!!.playAtMsLeft){
             SoundManager.playSound(nextTimerEndSound!!.id)
             nextTimerEndSound = null

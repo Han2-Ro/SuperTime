@@ -14,7 +14,7 @@ import com.han2dev.supertime_v0.SavesManager
 import com.han2dev.supertime_v0.TimerActivity
 import com.han2dev.supertime_v0.TimerSetupActivity
 
-class TimerSelectRecViewAdapter(val activity: FragmentActivity) : RecyclerView.Adapter<TimerSelectRecViewAdapter.TimerSelectViewHolder>() {
+class TimerSelectRecViewAdapter(private val activity: FragmentActivity) : RecyclerView.Adapter<TimerSelectRecViewAdapter.TimerSelectViewHolder>() {
     private var titles: MutableList<String> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TimerSelectViewHolder {
@@ -41,7 +41,7 @@ class TimerSelectRecViewAdapter(val activity: FragmentActivity) : RecyclerView.A
         }
 
         holder.btnDelete.setOnClickListener {
-            SavesManager.delete(titles[position])
+            SavesManager.delete(activity.applicationContext, titles[position])
             titles.removeAt(position)
             notifyItemRemoved(position)
         }
@@ -56,7 +56,7 @@ class TimerSelectRecViewAdapter(val activity: FragmentActivity) : RecyclerView.A
         position: Int,
         activityClass: Class<out Activity>
     ) {
-        val json = SavesManager.loadJson(titles[position])
+        val json = SavesManager.loadJson(activity.applicationContext, titles[position])
         val intent = Intent(activity, activityClass)
         intent.putExtra("timer_json", json)
         activity.startActivity(intent)
@@ -69,7 +69,7 @@ class TimerSelectRecViewAdapter(val activity: FragmentActivity) : RecyclerView.A
 
     fun refresh() {
         titles.clear()
-        SavesManager.loadAll().forEach {
+        SavesManager.loadAll(activity.applicationContext).forEach {
             add(it.name)
         }
     }

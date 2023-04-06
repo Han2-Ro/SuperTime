@@ -65,7 +65,7 @@ class TimerFragment : Fragment(), NewTimerDialog.NewTimerDialogListener  {
                     R.id.optAddTimer -> NewTimerDialog(this@TimerFragment, "untitled 1").show(parentFragmentManager, "NewTimerDialog")
 
                     R.id.optDeleteAll -> {
-                        SavesManager.deleteAll()
+                        SavesManager.deleteAll(requireActivity().applicationContext)
                         adapter.refresh()
                     }
                 }
@@ -82,7 +82,7 @@ class TimerFragment : Fragment(), NewTimerDialog.NewTimerDialogListener  {
     override fun addNewTimer(name: String) {
         val timer = TimerLoop(1, name)
         timer.childrenTimers.add(TimerElem(10000))
-        SavesManager.save(timer)
+        SavesManager.save(requireActivity().applicationContext, timer)
         adapter.add(name)
     }
 }

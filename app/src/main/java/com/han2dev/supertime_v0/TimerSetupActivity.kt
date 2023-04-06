@@ -61,7 +61,7 @@ class TimerSetupActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.optSave -> SavesManager.save(adapter.updateTimer())
+            R.id.optSave -> SavesManager.save(this, adapter.updateTimer())
             R.id.optAddTimer -> adapter.add(TimerElem())
             R.id.optAddLoop -> adapter.add(TimerLoop())
         }

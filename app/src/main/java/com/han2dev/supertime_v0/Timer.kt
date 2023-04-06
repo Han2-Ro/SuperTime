@@ -3,7 +3,7 @@ package com.han2dev.supertime_v0
 import android.os.CountDownTimer
 
 
-abstract class Timer(val name: String) : java.io.Serializable {
+abstract class Timer(var name: String) : java.io.Serializable {
     protected lateinit var parent: TimerParent
     protected var endSound: SoundManager.TimerEndSound? = null
     abstract fun start(parent: TimerParent)
@@ -97,12 +97,10 @@ class TimerElem(val duration: Long = 0, name: String  = "untitled") : Timer(name
     private lateinit var cdTimer: CountDownTimer
     private var timeRemaining: Long = duration
 
-    init {
-        endSound = SoundManager.TimerEndSound(SoundManager.sound1, 1)
-    }
 
     override fun start(parent: TimerParent) {
         //set up
+        endSound = SoundManager.TimerEndSound(SoundManager.sound1, 0)
         this.parent = parent
         parent.setSound(endSound)
         timeRemaining = duration
