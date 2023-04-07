@@ -88,18 +88,4 @@ class TimerSetupActivity : AppCompatActivity() {
 		}
 		return super.onOptionsItemSelected(item)
 	}
-
-	/*override fun onBackPressed() {
-		AlertDialog.Builder(this)
-			.setMessage("Do you want to save changes?")
-			.setPositiveButton("Save") { _, _ ->
-				// Save changes
-				super.onBackPressed()
-			}
-			.setNegativeButton("Discard") { _, _ ->
-				// Discard changes
-				super.onBackPressed()
-			}
-			.show()
-	}*/
 }
