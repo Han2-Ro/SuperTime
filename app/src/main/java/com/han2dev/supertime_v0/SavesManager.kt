@@ -62,11 +62,11 @@ object SavesManager {
 	}
 
 	fun convertToAvailableFilename(context: Context, name: String): String {
-		if (checkFilenameAvailability(context, name)) return addTimerExtension(name)
+		if (checkFilenameAvailability(context, name)) return name
 
 		for (i in 2..1000) {
 			val fileName = "$name ($i)"
-			if (checkFilenameAvailability(context, fileName)) return addTimerExtension(fileName)
+			if (checkFilenameAvailability(context, fileName)) return fileName
 		}
 
 		return addTimerExtension("Why do you have over 1000 timers with the same name?!")

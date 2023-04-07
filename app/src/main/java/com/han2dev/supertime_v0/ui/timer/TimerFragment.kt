@@ -62,8 +62,7 @@ class TimerFragment : Fragment(), NewTimerDialog.NewTimerDialogListener  {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 // Handle the menu selection
                 when (menuItem.itemId) {
-                    // TODO: "dynamic" default title
-                    R.id.optAddTimer -> NewTimerDialog(this@TimerFragment, "untitled 1").show(parentFragmentManager, "NewTimerDialog")
+                    R.id.optAddTimer -> NewTimerDialog(this@TimerFragment, SavesManager.convertToAvailableFilename(requireContext(),"untitled")).show(parentFragmentManager, "NewTimerDialog")
 
                     R.id.optDeleteAll -> {
                         SavesManager.deleteAll(requireActivity().applicationContext)
@@ -83,7 +82,7 @@ class TimerFragment : Fragment(), NewTimerDialog.NewTimerDialogListener  {
     override fun addNewTimer(name: String) {
         val timer = TimerLoop(1, name)
         timer.childrenTimers.add(TimerElem(10000))
-        if (SavesManager.save(requireActivity().applicationContext, timer)) {
+        if (SavesManager.save(requireActivity().applicationContext, timer, false)) {
             adapter.add(name)
         } else {
             Toast.makeText(requireActivity().applicationContext, "Failed to save timer.", Toast.LENGTH_SHORT).show()

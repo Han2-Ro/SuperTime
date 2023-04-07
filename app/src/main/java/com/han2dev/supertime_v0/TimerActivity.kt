@@ -1,6 +1,5 @@
 package com.han2dev.supertime_v0
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -57,8 +56,7 @@ class TimerActivity : AppCompatActivity(), TimerParent {
         }
 
         btnCancel.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            finish()
         }
 
         btnRestart.setOnClickListener {
