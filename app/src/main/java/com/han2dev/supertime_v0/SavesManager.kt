@@ -32,38 +32,6 @@ object SavesManager {
         return false
     }
 
-    /**
-     * Saves timer to file
-     * @param timer timer to save. Its name + TIMER_FILE_EXTENSION will be the file name.
-     * @return true if saved successfully
-     */
-    fun save(context: Context, timer: Timer) : Boolean {
-        val json = timerToJson(timer)
-        return saveJson(context, json, timer.name)
-    }
-
-    /**
-     * Loads timer from file
-     * @param name name of the timer to load (with or without extension)
-     * @return Timer object or null if file not found
-     */
-    fun load(context: Context, name: String): Timer? {
-        val json = loadJson(context, name)
-        return timerFromJson(json)
-    }
-
-    private fun saveJson(context: Context, json: String, name: String) : Boolean {
-        val fileName = addTimerExtension(name)
-
-        if (!checkFilenameAvailability(context, fileName)) return false
-
-        context.openFileOutput(fileName, Context.MODE_PRIVATE).use {
-            it.write(json.toByteArray())
-        }
-
-        println("$json\nstored to $fileName")
-        return true
-    }
 
     private fun addTimerExtension(name: String): String {
         return if (name.endsWith(TIMER_FILE_EXTENSION)) name
@@ -104,19 +72,6 @@ object SavesManager {
         return addTimerExtension("Why do you have over 1000 timers with the same name?!")
     }
 
-    fun loadJson(context: Context, name: String): String {
-        val fileName = addTimerExtension(name)
-
-        val json: String = try {
-            context.openFileInput(fileName).bufferedReader().use {
-                it.readText()
-            }
-        } catch (e: FileNotFoundException) {
-            return "Error: File not found"
-        }
-        println("$json\nloaded from $fileName")
-        return json
-    }
 
     fun loadAll(context: Context) : List<Timer> {
         val timers = mutableListOf<Timer>()
@@ -143,6 +98,53 @@ object SavesManager {
         println("All Deleted")
     }
 
+    /**
+     * Saves timer to file
+     * @param timer timer to save. Its name + TIMER_FILE_EXTENSION will be the file name.
+     * @return true if saved successfully
+     */
+    fun save(context: Context, timer: Timer) : Boolean {
+        val json = timerToJson(timer)
+        return saveJson(context, json, timer.name)
+    }
+
+    /**
+     * Loads timer from file
+     * @param name name of the timer to load (with or without extension)
+     * @return Timer object or null if file not found
+     */
+    fun load(context: Context, name: String): Timer? {
+        val json = loadJson(context, name)
+        return timerFromJson(json)
+    }
+
+    private fun saveJson(context: Context, json: String, name: String) : Boolean {
+        val fileName = addTimerExtension(name)
+
+        if (!checkFilenameAvailability(context, fileName)) return false
+
+        context.openFileOutput(fileName, Context.MODE_PRIVATE).use {
+            it.write(json.toByteArray())
+        }
+
+        println("$json\nstored to $fileName")
+        return true
+    }
+
+    fun loadJson(context: Context, name: String): String {
+        val fileName = addTimerExtension(name)
+
+        val json: String = try {
+            context.openFileInput(fileName).bufferedReader().use {
+                it.readText()
+            }
+        } catch (e: FileNotFoundException) {
+            return "Error: File not found"
+        }
+        println("$json\nloaded from $fileName")
+        return json
+    }
+
     fun timerToJson(timer: Timer): String {
         return gson.toJson(timer)
     }
@@ -156,6 +158,27 @@ object SavesManager {
             return null
         }
 
+    }
+
+    private class TimerSerializer : JsonSerializer<Timer> {
+        override fun serialize(src: Timer, typeOfSrc: java.lang.reflect.Type, context: JsonSerializationContext): JsonElement {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("type", src.javaClass.name)
+            jsonObject.addProperty("name", src.name)
+
+            if (src is TimerLoop) {
+                println("serialize TimerLoop")
+                jsonObject.addProperty("repeats", src.repeats)
+                jsonObject.add("childrenTimers", gson.toJsonTree(src.childrenTimers))
+            }
+
+            if (src is TimerElem) {
+                println("serialize TimerElem")
+                jsonObject.addProperty("duration", src.duration)
+            }
+
+            return jsonObject
+        }
     }
 
     private class TimerDeserializer : JsonDeserializer<Timer> {
@@ -182,27 +205,6 @@ object SavesManager {
             }
 
             throw IllegalArgumentException("Unknown type: $type")
-        }
-    }
-
-    private class TimerSerializer : JsonSerializer<Timer> {
-        override fun serialize(src: Timer, typeOfSrc: java.lang.reflect.Type, context: JsonSerializationContext): JsonElement {
-            val jsonObject = JsonObject()
-            jsonObject.addProperty("type", src.javaClass.name)
-            jsonObject.addProperty("name", src.name)
-
-            if (src is TimerLoop) {
-                println("serialize TimerLoop")
-                jsonObject.addProperty("repeats", src.repeats)
-                jsonObject.add("childrenTimers", gson.toJsonTree(src.childrenTimers))
-            }
-
-            if (src is TimerElem) {
-                println("serialize TimerElem")
-                jsonObject.addProperty("duration", src.duration)
-            }
-
-            return jsonObject
         }
     }
 }

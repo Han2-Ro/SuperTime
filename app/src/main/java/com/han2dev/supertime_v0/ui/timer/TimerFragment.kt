@@ -2,6 +2,7 @@ package com.han2dev.supertime_v0.ui.timer
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -82,7 +83,10 @@ class TimerFragment : Fragment(), NewTimerDialog.NewTimerDialogListener  {
     override fun addNewTimer(name: String) {
         val timer = TimerLoop(1, name)
         timer.childrenTimers.add(TimerElem(10000))
-        SavesManager.save(requireActivity().applicationContext, timer)
-        adapter.add(name)
+        if (SavesManager.save(requireActivity().applicationContext, timer)) {
+            adapter.add(name)
+        } else {
+            Toast.makeText(requireActivity().applicationContext, "Failed to save timer.", Toast.LENGTH_SHORT).show()
+        }
     }
 }
