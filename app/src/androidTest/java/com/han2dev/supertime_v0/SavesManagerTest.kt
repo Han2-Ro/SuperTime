@@ -85,12 +85,14 @@ class SavesManagerTest {
 	}
 
 	@Test
-	fun saveFileWithExistingName_returnFalse(){
-		timer1.name = "timer1"
-		timer2.name = "timer1"
+	fun saveFileWithExistingName_overrideAndReturnTrue(){
+		timer1.name = "sameName"
+		timer2.name = "sameName"
 		SavesManager.save(context, timer1)
-		val result = SavesManager.save(context, timer2)
-		assertThat(result).isFalse()
+		val saved = SavesManager.save(context, timer2)
+		assertThat(saved).isTrue()
+		val result = SavesManager.load(context, timer2.name)
+		assertThat(result).isEqualTo(timer2)
 	}
 
 	@Test
