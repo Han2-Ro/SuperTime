@@ -100,7 +100,7 @@ class TimerElem(val duration: Long = 0, name: String  = "untitled") : Timer(name
 
     override fun start(parent: TimerParent) {
         //set up
-        endSound = SoundManager.TimerEndSound(SoundManager.sound1, 0)
+        endSound = SoundManager.TimerEndSound(SoundManager.loadSound(R.raw.sound1), 0)
         this.parent = parent
         parent.setSound(endSound)
         timeRemaining = duration
