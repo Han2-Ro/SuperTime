@@ -4,11 +4,12 @@ A Timer & Alarm app for android.
 
 ## Planned Features
 ### Timer:
--looping timers (with compositionality)
+-nested timer loops (e.g. for interval workout)
 
--save/load
+-import/export timers
 
--presets
+-custom sounds
+
 
 ### Alarm:
 -slow volume increase over time
