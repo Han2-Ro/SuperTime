@@ -79,9 +79,9 @@ class SavesManagerTest {
 	}
 
 	@Test
-	fun loadNonExistingFile_returnErrorAsTitle(){
+	fun loadNonExistingFile_returnNull(){
 		val result = SavesManager.load(context, "nonExistingFile")
-		assertThat(result.name).isEqualTo("Error: File not found")
+		assertThat(result).isNull()
 	}
 
 	@Test
@@ -94,11 +94,50 @@ class SavesManagerTest {
 	}
 
 	@Test
-	fun SaveUsingConvertToAvailableName_returnTrue(){
+	fun saveUsingConvertToAvailableName_returnTrue(){
 		timer1.name = "timer"
-		timer2.name = SavesManager.convertToAvailableFilename(context, "timer")
 		SavesManager.save(context, timer1)
+
+		timer2.name = SavesManager.convertToAvailableFilename(context, "timer")
 		val result = SavesManager.save(context, timer2)
 		assertThat(result).isTrue()
+	}
+
+	@Test
+	fun renameTimer_returnTrue(){
+		timer1.name = "timer1"
+		SavesManager.save(context, timer1)
+		val result = SavesManager.rename(context, "timer1", "newName")
+		assertThat(result).isTrue()
+	}
+
+	@Test
+	fun renameNonExistingTimer_returnFalse(){
+		val result = SavesManager.rename(context, "nonExistingTimer", "newName")
+		assertThat(result).isFalse()
+	}
+
+	@Test
+	fun renameTimerToExistingName_returnFalse(){
+		timer1.name = "timer1"
+		timer2.name = "timer2"
+		SavesManager.save(context, timer1)
+		SavesManager.save(context, timer2)
+		val result = SavesManager.rename(context, "timer1", "timer2")
+		assertThat(result).isFalse()
+	}
+
+	@Test
+	fun deleteTimer_returnTrue(){
+		timer1.name = "timer1"
+		SavesManager.save(context, timer1)
+		val result = SavesManager.delete(context, "timer1")
+		assertThat(result).isTrue()
+	}
+
+	@Test
+	fun deleteNonExistingTimer_returnFalse(){
+		val result = SavesManager.delete(context, "nonExistingTimer")
+		assertThat(result).isFalse()
 	}
 }

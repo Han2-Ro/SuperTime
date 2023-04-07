@@ -1,7 +1,6 @@
 package com.han2dev.supertime_v0
 
 import android.content.Context
-import android.widget.Toast
 import com.google.gson.*
 import java.io.File
 import java.io.FileNotFoundException
@@ -23,12 +22,14 @@ object SavesManager {
      * @param oldName old name of the timer
      * @param newName new name of the timer
      */
-    fun rename(context: Context, oldName: String, newName: String) {
-        val timer = load(context, oldName)
+    fun rename(context: Context, oldName: String, newName: String): Boolean {
+        val timer = load(context, oldName) ?: return false
         timer.name = newName
         if (save(context, timer)) {
             delete(context, oldName)
+            return true
         }
+        return false
     }
 
     /**
@@ -46,7 +47,7 @@ object SavesManager {
      * @param name name of the timer to load (with or without extension)
      * @return Timer object or null if file not found
      */
-    fun load(context: Context, name: String) : Timer{
+    fun load(context: Context, name: String): Timer? {
         val json = loadJson(context, name)
         return timerFromJson(json)
     }
@@ -111,7 +112,7 @@ object SavesManager {
                 it.readText()
             }
         } catch (e: FileNotFoundException) {
-            return timerToJson(TimerElem(0, "Error: File not found"))
+            return "Error: File not found"
         }
         println("$json\nloaded from $fileName")
         return json
@@ -122,19 +123,14 @@ object SavesManager {
         val files = context.filesDir.listFiles()
         println("files: ${files.forEach { it.name }}")
         for (file in allTimerFiles(context)) {
-            timers.add(load(context, file.name))
+            timers.add(load(context, file.name) ?: continue)
         }
         return timers
     }
 
-    fun delete(context: Context, name: String) {
+    fun delete(context: Context, name: String): Boolean {
         val fileName = addTimerExtension(name)
-
-        if (context.deleteFile(fileName)) {
-            //Toast.makeText(context, "Deleted", Toast.LENGTH_SHORT).show()
-        } else {
-            //Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
-        }
+        return context.deleteFile(fileName)
     }
 
     /**
@@ -144,19 +140,20 @@ object SavesManager {
         for (file in allTimerFiles(context)) {
             delete(context, file.name)
         }
-        Toast.makeText(context, "All Deleted", Toast.LENGTH_SHORT).show()
+        println("All Deleted")
     }
 
-    fun timerToJson(timer: Timer) : String {
+    fun timerToJson(timer: Timer): String {
         return gson.toJson(timer)
     }
 
-    fun timerFromJson(json: String) : Timer {
+    fun timerFromJson(json: String): Timer? {
         return try {
             gson.fromJson(json, Timer::class.java)
         } catch (e: Exception) {
+            println("Error: Json deserialization failed")
             println(e)
-            TimerElem(0, "Error: Json deserialization failed")
+            return null
         }
 
     }
