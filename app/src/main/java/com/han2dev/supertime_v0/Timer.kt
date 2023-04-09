@@ -2,10 +2,23 @@ package com.han2dev.supertime_v0
 
 import android.os.CountDownTimer
 
+/**
+ * formats time to string
+ * @param millis time in ms
+ * @return formatted time (MM:SS.cs)
+ */
+fun formatTime(millis: Long): String {
+    val centis: Long = millis / 10 % 100
+    val second: Long = millis / 1000 % 60
+    val minute: Long = millis / (1000 * 60) //% 60
+    //val hour: Long = millis / (1000 * 60 * 60) % 24
 
-abstract class Timer(var name: String) : java.io.Serializable {
+    return String.format("%02d:%02d.%02d", minute, second, centis)
+}
+
+abstract class Timer(var name: String) {
     protected lateinit var parent: TimerParent
-    protected var endSound: SoundManager.TimerEndSound? = null
+    var endSound: SoundManager.TimerEndSound? = null
     abstract fun start(parent: TimerParent)
     abstract fun pause()
     abstract fun resume()
@@ -93,14 +106,13 @@ class TimerLoop(var repeats: Int = 1, name: String  = "untitled") : Timer(name),
 }
 
 
-class TimerElem(val duration: Long = 0, name: String  = "untitled") : Timer(name) {
+class TimerElem(var duration: Long = 0, name: String  = "untitled") : Timer(name) {
     private lateinit var cdTimer: CountDownTimer
     private var timeRemaining: Long = duration
 
 
     override fun start(parent: TimerParent) {
         //set up
-        endSound = SoundManager.TimerEndSound(SoundManager.loadSound(R.raw.sound1), 0)
         this.parent = parent
         parent.setSound(endSound)
         timeRemaining = duration
@@ -138,14 +150,6 @@ class TimerElem(val duration: Long = 0, name: String  = "untitled") : Timer(name
     override fun clone(): TimerElem {
         println("copied TimerElem")
         return TimerElem(duration)
-    }
-
-    fun getSeconds(): Long {
-        return duration / 1000 % 60
-    }
-
-    fun getMinutes(): Long {
-        return duration / (1000 * 60)
     }
 
     override fun equals(other: Any?): Boolean {

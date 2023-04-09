@@ -81,7 +81,7 @@ class TimerActivity : AppCompatActivity(), TimerParent {
     override fun update(time: Long, cyclesLeft: MutableList<Int>) {
         //check if sound should be played TODO: consider doing this in SoundManager for more modularity/separation
         if(nextTimerEndSound != null && time <= nextTimerEndSound!!.playAtMsLeft){
-            SoundManager.playSound(nextTimerEndSound!!.id)
+            SoundManager.playSound(nextTimerEndSound!!)
             nextTimerEndSound = null
         }
 
@@ -95,18 +95,14 @@ class TimerActivity : AppCompatActivity(), TimerParent {
     }
 
     override fun setSound(sound: SoundManager.TimerEndSound?) {
-        nextTimerEndSound = sound
+        nextTimerEndSound = if(sound != null) {
+            SoundManager.loadSound(sound)
+        } else {
+            SoundManager.loadSound(SoundManager.sounds[0])
+        }
     }
 
-    private fun formatTime(millis: Long): String {
-        //formatting from ms to MM:SS.cs
-        val centis: Long = millis / 10 % 100
-        val second: Long = millis / 1000 % 60
-        val minute: Long = millis / (1000 * 60) //% 60
-        //val hour: Long = millis / (1000 * 60 * 60) % 24
 
-        return String.format("%02d:%02d.%02d", minute, second, centis)
-    }
 
     /*
     override fun onDestroy() {

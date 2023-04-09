@@ -78,10 +78,8 @@ class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : Re
     override fun onBindViewHolder(holder: TimerViewHolder, position: Int) {
         holder.txtPosition.text = "${position+1}."
 
-        if (holder is TimerElemHolder) {
-            holder.edtTxtMin.setText((timerLoop.childrenTimers[position] as TimerElem).getMinutes().toString())
-            holder.edtTxtSec.setText((timerLoop.childrenTimers[position] as TimerElem).getSeconds().toString())
-        }
+        holder.setTimer(timerLoop.childrenTimers[position])
+
 
         //TODO: consider doing this in constructor of TimerViewHolder
         holder.dragHandle.setOnTouchListener { v, event ->
@@ -115,38 +113,7 @@ class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : Re
 
     fun add(new: Timer) {
         timerLoop.childrenTimers.add(new)
-        notifyItemInserted(timerLoop.childrenTimers.size - 1) //notifyDataSetChanged()
-    }
-
-    //TODO: consider removing/replacing cause that shit is buggy
-    fun updateTimer(): TimerLoop {
-        for (holder in holders) {
-            if (holder is TimerElemHolder) {
-                println("updating TimerElem...")
-                val min: Long = holder.edtTxtMin.text.toString().toLongOrNull() ?: 0
-                val sec: Long = holder.edtTxtSec.text.toString().toLongOrNull() ?: 0
-                timerLoop.childrenTimers[holder.adapterPosition] = TimerElem((min * 60 + sec) * 1000)
-                println("updated TimerElem: ${(min * 60 + sec) * 1000}")
-            }
-            else if (holder is LoopHolder) {
-
-                println("updating TimerLoop...")
-                val adapter: TimesRecViewAdapter = holder.recView.adapter as TimesRecViewAdapter
-                timerLoop.childrenTimers[holder.adapterPosition] = adapter.updateTimer()
-                (timerLoop.childrenTimers[holder.adapterPosition] as TimerLoop).repeats = holder.editTxtRepeats.text.toString().toIntOrNull()?:1
-                println("updated TimerLoop: ${holder.editTxtRepeats.text.toString().toIntOrNull()?:1}")
-            }
-        }
-
-        return timerLoop
-    }
-
-
-    fun readInput(){
-        timerLoop = TimerLoop()
-        for(holder in holders) {
-            add(holder.readInput())
-        }
+        notifyItemInserted(timerLoop.childrenTimers.size - 1)
     }
 
 

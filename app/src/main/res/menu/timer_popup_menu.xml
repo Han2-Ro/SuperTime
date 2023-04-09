@@ -2,6 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/setSound"
+        android:title="Select Sound"/>
+
+    <item
         android:id="@+id/delete"
         android:icon="@drawable/ic_delete"
         android:title="Delete"/>

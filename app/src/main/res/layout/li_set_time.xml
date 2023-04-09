@@ -25,9 +25,9 @@
             android:textColor="@color/design_default_color_secondary"
             android:textSize="30dp"
             android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/colon"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/colon" />
 
         <EditText
             android:id="@+id/editTxtMin"
@@ -50,7 +50,6 @@
             android:layout_centerInParent="true"
             android:text=":"
             android:textSize="35sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btnOptions"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -73,18 +72,17 @@
             android:id="@+id/btnOptions"
             android:layout_width="45dp"
             android:layout_height="45dp"
+            android:layout_marginEnd="15dp"
             android:src="@drawable/ic_settings"
-            android:layout_marginRight="15dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/btnDown"
             app:layout_constraintEnd_toStartOf="@+id/btnUp"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="@+id/btnUp" />
 
         <ImageView
             android:id="@+id/btnUp"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/ic_up"
-            app:layout_constraintBottom_toTopOf="@id/btnDown"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -93,9 +91,9 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/ic_down"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btnUp"/>
+            android:layout_marginTop="30dp"
+            app:layout_constraintEnd_toEndOf="@id/btnUp"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/dragHandle"
@@ -104,10 +102,27 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_drag_handler1"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:visibility="gone"/>
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editTxtMin"
+            android:visibility="gone">
+
+            <AutoCompleteTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:hint="sound"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>

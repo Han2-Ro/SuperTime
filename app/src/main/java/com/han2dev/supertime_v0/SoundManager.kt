@@ -3,9 +3,8 @@ package com.han2dev.supertime_v0
 import android.media.AudioAttributes
 import android.media.SoundPool
 
-object SoundManager {
-    private val loadedSounds: MutableMap<Int, Int> = mutableMapOf()
 
+object SoundManager {
     // set up soundPool
     private val audioAttributes: AudioAttributes = AudioAttributes.Builder()
         .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
@@ -17,14 +16,25 @@ object SoundManager {
     .setAudioAttributes(audioAttributes)
     .build()
 
-    //val sound1 = soundPool.load(MainActivity.context, R.raw.sound1, 1)
+    // loaded sounds: resId -> soundId
+    private val loadedSounds: MutableMap<Int, Int> = mutableMapOf()
 
-    fun loadSound(sound: Int): Int {
-        if (!loadedSounds.containsKey(sound)) {
-            loadedSounds[sound] = soundPool.load(MainActivity.context, sound, 1)
-            println("loaded sound: $sound")
+    val sounds: Array<TimerEndSound> = arrayOf(
+        TimerEndSound(R.raw.sound1, "bing1",0),
+        TimerEndSound(R.raw.halo_respawn_sound,"halo respawn" , 3290)
+    )
+
+    fun loadSound(resId: Int): Int {
+        if (!loadedSounds.containsKey(resId)) {
+            loadedSounds[resId] = soundPool.load(MainActivity.context, resId, 1)
+            println("loaded sound: $resId")
         }
-        return loadedSounds[sound]!!
+        return loadedSounds[resId]!!
+    }
+
+    fun loadSound(sound: TimerEndSound): TimerEndSound {
+        sound.soundID = loadSound(sound.resId)
+        return sound
     }
 
     fun playSound(sound: Int) {
@@ -33,8 +43,21 @@ object SoundManager {
         println("streamID: $streamID")
     }
 
+    fun playSound(sound: TimerEndSound) {
+        playSound(sound.soundID)
+    }
+
+    fun getSoundByName(name: String): TimerEndSound? {
+        for (sound in sounds) {
+            if (sound.name == name) return sound
+        }
+        return null
+    }
+
     data class TimerEndSound(
-        val id: Int,
-        val playAtMsLeft: Int
+        val resId: Int,
+        val name: String,
+        val playAtMsLeft: Int,
+        var soundID: Int = -1
     )
 }

@@ -168,6 +168,7 @@ object SavesManager {
 			val jsonObject = JsonObject()
 			jsonObject.addProperty("type", src.javaClass.name)
 			jsonObject.addProperty("name", src.name)
+			jsonObject.addProperty("endSound", src.endSound?.name)
 
 			if (src is TimerLoop) {
 				println("serialize TimerLoop")
@@ -190,7 +191,7 @@ object SavesManager {
 			val type = jsonObject.get("type").asString
 			val name = jsonObject.get("name").asString
 
-			if (type == TimerLoop::class.java.name) {
+			val timer = if (type == TimerLoop::class.java.name) {
 				println("deserialize TimerLoop")
 				val repeats = jsonObject.get("repeats").asInt
 				val childrenTimers = jsonObject.get("childrenTimers").asJsonArray
@@ -198,16 +199,22 @@ object SavesManager {
 				for (child in childrenTimers) {
 					timerLoop.childrenTimers.add(deserialize(child, typeOfT, context))
 				}
-				return timerLoop
+				timerLoop
 			}
-
-			if (type == TimerElem::class.java.name) {
+			else if (type == TimerElem::class.java.name) {
 				println("deserialize TimerElem")
 				val duration = jsonObject.get("duration").asLong
-				return TimerElem(duration, name)
+				TimerElem(duration, name)
+			}
+			else throw IllegalArgumentException("Unknown type: $type")
+
+			try {
+				timer.endSound = SoundManager.getSoundByName(jsonObject.get("endSound").asString)
+			} catch (e: Exception) {
+				println("Timer has no end sound")
 			}
 
-			throw IllegalArgumentException("Unknown type: $type")
+			return timer
 		}
 	}
 }

@@ -48,7 +48,7 @@ class TimerSetupActivity : AppCompatActivity() {
 					.setCancelable(false)
 					.setPositiveButton("Yes") { _, _ ->
 						// Save changes
-						if (SavesManager.save(this@TimerSetupActivity, adapter.updateTimer())) {
+						if (SavesManager.save(this@TimerSetupActivity, adapter.timerLoop)) {
 							Toast.makeText(this@TimerSetupActivity, "Saved", Toast.LENGTH_SHORT).show()
 							finish()
 						} else {
@@ -77,7 +77,7 @@ class TimerSetupActivity : AppCompatActivity() {
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
 		when (item.itemId) {
 			R.id.optSave -> {
-				if (SavesManager.save(this, adapter.updateTimer())) {
+				if (SavesManager.save(this, adapter.timerLoop)) {
 					Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show()
 				} else {
 					Toast.makeText(this, "Failed to save", Toast.LENGTH_SHORT).show()
