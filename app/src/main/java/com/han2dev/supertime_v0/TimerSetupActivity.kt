@@ -20,14 +20,14 @@ class TimerSetupActivity : AppCompatActivity() {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_timer_setup)
 
-		val json = intent.getStringExtra("timer_json")
-			?: throw NullPointerException("Found no \"timer_json\": String in intent extra.")
-		println("json from intent: $json")
-		val timer: Timer = SavesManager.timerFromJson(json) ?: throw IllegalArgumentException("timer_json could not be parsed to Timer")
+		val timerId = intent.getStringExtra("timer_id")
+			?: throw NullPointerException("Found no \"timer_name\": String in intent extra.")
+		println("name from intent: $timerId")
+		val timer: Timer = SavesManager.load(this, timerId) ?: throw IllegalArgumentException("timer_id could not be parsed to Timer")
 
 		title = timer.name
 
-		recyclerView = findViewById(R.id.rootRecView)
+		/*recyclerView = findViewById(R.id.rootRecView)
 		adapter = TimesRecViewAdapter(this, recyclerView)
 		if (timer is TimerLoop) {
 			adapter.timerLoop = timer
@@ -37,7 +37,7 @@ class TimerSetupActivity : AppCompatActivity() {
 
 		recyclerView.adapter = adapter
 		recyclerView.layoutManager = LinearLayoutManager(this)
-
+		*/
 
 		//TODO: Provide option to always automatically save changes
 		//TODO: Only ask to save changes if changes have been made

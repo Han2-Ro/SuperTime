@@ -26,10 +26,12 @@ class TimerActivity : AppCompatActivity(), TimerParent {
         txtTime = findViewById(R.id.txtTime)
         txtCycles = findViewById(R.id.txtCycles)
 
-        val json = intent.getStringExtra("timer_json")
-            ?: throw NullPointerException("Found no \"timer_json\": String in intent extra.")
-        println("json from intent: $json")
-        val timer: Timer = SavesManager.timerFromJson(json) ?: throw IllegalArgumentException("timer_json could not be parsed to Timer")
+        val timerId = intent.getStringExtra("timer_id")
+            ?: throw NullPointerException("Found no \"timer_name\": String in intent extra.")
+        println("name from intent: $timerId")
+        val timer: Timer = SavesManager.load(this, timerId) ?: throw IllegalArgumentException("timer_id could not be parsed to Timer")
+
+        title = timer.name
 
 
         btnPause = findViewById(R.id.btnPause)

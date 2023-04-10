@@ -9,10 +9,7 @@ import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import com.han2dev.supertime_v0.R
-import com.han2dev.supertime_v0.SavesManager
-import com.han2dev.supertime_v0.TimerActivity
-import com.han2dev.supertime_v0.TimerSetupActivity
+import com.han2dev.supertime_v0.*
 
 class TimerSelectRecViewAdapter(private val activity: FragmentActivity) : RecyclerView.Adapter<TimerSelectRecViewAdapter.TimerSelectViewHolder>() {
     private var titles: MutableList<String> = mutableListOf()
@@ -37,7 +34,7 @@ class TimerSelectRecViewAdapter(private val activity: FragmentActivity) : Recycl
         }
 
         holder.btnEdit.setOnClickListener {
-            startActivityWithTimer(position, TimerSetupActivity::class.java)
+            startActivityWithTimer(position, NewTimerSetupActivity::class.java)
         }
 
         holder.btnDelete.setOnClickListener {
@@ -56,9 +53,8 @@ class TimerSelectRecViewAdapter(private val activity: FragmentActivity) : Recycl
         position: Int,
         activityClass: Class<out Activity>
     ) {
-        val json = SavesManager.loadJson(activity.applicationContext, titles[position])
         val intent = Intent(activity, activityClass)
-        intent.putExtra("timer_json", json)
+        intent.putExtra("timer_id", titles[position])
         activity.startActivity(intent)
     }
 
