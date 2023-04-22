@@ -1,10 +1,13 @@
 package com.han2dev.supertime_v0
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -18,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,15 +29,17 @@ import androidx.compose.ui.unit.dp
 import com.han2dev.supertime_v0.ui.theme.SuperTime_v0Theme
 
 class NewTimerSetupActivity : ComponentActivity() {
+
+	val timer: MutableState<Timer> = mutableStateOf(TimerLoop())
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
 		val timerId = intent.getStringExtra("timer_id")
 			?: throw NullPointerException("Found no \"timer_name\": String in intent extra.")
 		println("name from intent: $timerId")
-		val timer: Timer = SavesManager.load(this, timerId) ?: throw IllegalArgumentException("timer_id could not be parsed to Timer")
+		timer.value = SavesManager.load(this, timerId) ?: throw IllegalArgumentException("timer_id could not be parsed to Timer")
 
-		title = timer.name
+		title = timer.value.name
 
 		setContent {
 			SuperTime_v0Theme {
@@ -42,7 +48,7 @@ class NewTimerSetupActivity : ComponentActivity() {
 					.background(Color.Cyan)
 					.padding(0.dp)
 				) {
-					LoopLI(timer as TimerLoop)
+					LoopLI(timer.value as TimerLoop) //TODO: fix this cast
 				}
 			}
 		}
@@ -84,7 +90,17 @@ fun MyListItem(backgroundColor: Color = Color.LightGray, TopRowContent: @Composa
 					contentDescription = null,
 					modifier = Modifier
 						.offset(0.dp, 5.dp)
-						.clickable { /*TODO*/ }
+						.clickable {
+							/*TODO
+							val currentPos: Int = adapterPosition
+							if (currentPos > 0) {
+								Collections.swap(parentAdapter.timerLoop.childrenTimers, currentPos, currentPos - 1)
+								parentAdapter.notifyItemMoved(currentPos, currentPos - 1)
+
+							} else {
+								Toast.makeText(parentAdapter.context, "already at the top", Toast.LENGTH_SHORT).show()
+							} */
+						}
 				)
 				Icon(
 					imageVector = Icons.Default.KeyboardArrowDown,
@@ -123,9 +139,9 @@ fun TimeLI(timer: TimerElem) {
 				modifier = modifier
 			) {
 
-				MyTextField(minutes)
+				MyTextField(minutes, modifier = Modifier.testTag("minutesField"))
 				Text(text = " min  ")
-				MyTextField(seconds)
+				MyTextField(seconds, modifier = Modifier.testTag("secondsField"))
 				Text(text = " sec")
 			}
 
@@ -150,8 +166,11 @@ fun LoopLI(timerLoop: TimerLoop) {
 				Text(text = " time(s)") //TODO: dynamic plural
 			}
 	},{
-		Column(){
-			for (timer in timerLoop.childrenTimers) {
+		LazyColumn (
+			modifier = Modifier.wrapContentHeight()
+		){
+			items(timerLoop.childrenTimers)
+			{ timer ->
 				if (timer is TimerElem)
 					TimeLI(timer)
 				else if (timer is TimerLoop)
@@ -162,12 +181,12 @@ fun LoopLI(timerLoop: TimerLoop) {
 }
 
 @Composable
-private fun MyTextField(state: MutableState<Int?>) {
+private fun MyTextField(state: MutableState<Int?>, modifier: Modifier = Modifier) {
 	BasicTextField(
 		value = state.value?.toString() ?: "",
 		textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
 		keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-		modifier = Modifier
+		modifier = modifier
 			.width(40.dp)
 			.border(1.dp, Color.DarkGray, RoundedCornerShape(5.dp))
 			.clip(RoundedCornerShape(5.dp))
@@ -198,7 +217,7 @@ fun DefaultPreview() {
 			.background(Color.Cyan)
 			.padding(0.dp)
 		) {
-			LoopLI(timerLoop2)
+			TimeLI(timer = TimerElem(5000))
 		}
 	}
 }
