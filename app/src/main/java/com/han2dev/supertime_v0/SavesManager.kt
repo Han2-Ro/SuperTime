@@ -178,7 +178,7 @@ object SavesManager {
 
 			if (src is TimerElem) {
 				println("serialize TimerElem")
-				jsonObject.addProperty("duration", src.duration)
+				jsonObject.addProperty("duration", src.durationMillis)
 			}
 
 			return jsonObject

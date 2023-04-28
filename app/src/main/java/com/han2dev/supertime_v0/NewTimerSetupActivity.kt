@@ -1,7 +1,6 @@
 package com.han2dev.supertime_v0
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
@@ -30,33 +29,69 @@ import com.han2dev.supertime_v0.ui.theme.SuperTime_v0Theme
 
 class NewTimerSetupActivity : ComponentActivity() {
 
-	val timer: MutableState<Timer> = mutableStateOf(TimerLoop())
+	val timer: MutableState<Timer?> = mutableStateOf(TimerLoop())
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
 		val timerId = intent.getStringExtra("timer_id")
-			?: throw NullPointerException("Found no \"timer_name\": String in intent extra.")
+			?: throw NullPointerException("Found no \"timer_id\": String in intent extra.")
 		println("name from intent: $timerId")
-		timer.value = SavesManager.load(this, timerId) ?: throw IllegalArgumentException("timer_id could not be parsed to Timer")
+		timer.value = SavesManager.load(this, timerId) //?: throw IllegalArgumentException("timer_id '$timerId' could not be parsed to Timer")
 
-		title = timer.value.name
+		title = timer.value?.name
 
 		setContent {
 			SuperTime_v0Theme {
-				Box (modifier = Modifier
-					.fillMaxSize()
-					.background(Color.Cyan)
-					.padding(0.dp)
-				) {
-					LoopLI(timer.value as TimerLoop) //TODO: fix this cast
+				Scaffold (
+					topBar = {
+						TopAppBar(
+							title = { Text(timer.value?.name ?: "Timer not found")},
+							navigationIcon = {
+								IconButton(onClick = { finish() }) {
+									Icon(Icons.Filled.ArrowBack, contentDescription = "Go back")
+								}
+							},
+							actions = {
+								IconButton(modifier = Modifier.testTag("saveButton"), onClick = { save() }) {
+									Icon(Icons.Default.Done, contentDescription = "Delete")
+								}
+							}
+							)
+					}
+				) {contentPadding ->
+					Box(modifier = Modifier
+						.fillMaxSize()
+						.background(Color.Cyan)
+						.padding(contentPadding)) {
+						when (timer.value) {
+							is TimerLoop -> {
+								LoopLI(timer.value as TimerLoop)
+							}
+							is TimerElem -> {
+								TimeLI(timer.value as TimerElem)
+							}
+							null -> {
+								Column {
+									Text("Timer not found")
+									Button(onClick = { finish() }) {
+										Text("Go back")
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}
 	}
+
+	private fun save() {
+		TODO("Not yet implemented")
+	}
 }
 
 @Composable
-fun MyListItem(backgroundColor: Color = Color.LightGray, TopRowContent: @Composable (Modifier) -> Unit, ExtraContent: @Composable () -> Unit = {}) {
+fun MyListItem(backgroundColor: Color = Color.LightGray, topRowContent: @Composable (Modifier) -> Unit, extraContent: @Composable () -> Unit = {}) {
 
 	Column(
 		modifier = Modifier
@@ -71,7 +106,7 @@ fun MyListItem(backgroundColor: Color = Color.LightGray, TopRowContent: @Composa
 				.padding(10.dp)
 
 		) {
-			TopRowContent(
+			topRowContent(
 				Modifier
 					.weight(1f)
 					.wrapContentHeight())
@@ -114,7 +149,7 @@ fun MyListItem(backgroundColor: Color = Color.LightGray, TopRowContent: @Composa
 
 
 		Column {
-			ExtraContent()
+			extraContent()
 		}
 
 	}
@@ -123,7 +158,7 @@ fun MyListItem(backgroundColor: Color = Color.LightGray, TopRowContent: @Composa
 
 @Composable
 fun TimeLI(timer: TimerElem) {
-	val timeStr = formatTime(timer.duration)
+	val timeStr = formatTime(timer.durationMillis)
 	val minutes: MutableState<Int?> = remember {
 		mutableStateOf(timeStr.substring(0, 2).toInt())
 	}
@@ -133,7 +168,7 @@ fun TimeLI(timer: TimerElem) {
 
 	MyListItem(
 		Color(0x70FFFFFF),
-		TopRowContent = {modifier ->
+		topRowContent = { modifier ->
 			Row (
 				verticalAlignment = Alignment.CenterVertically,
 				modifier = modifier

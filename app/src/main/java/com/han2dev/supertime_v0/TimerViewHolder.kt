@@ -122,12 +122,12 @@ class TimerElemHolder(itemView: View, parentAdapter: TimesRecViewAdapter) : Time
 	private fun onTextChanged() {
 		val min: Long = edtTxtMin.text.toString().toLongOrNull() ?: 0
 		val sec: Long = edtTxtSec.text.toString().toLongOrNull() ?: 0
-		timer.duration = (min * 60 + sec) * 1000
+		timer.durationMillis = (min * 60 + sec) * 1000
 	}
 
 	private fun onFocusChanged(hasFocus: Boolean) {
 		if (!hasFocus) {
-			val timeStr = formatTime(timer.duration)
+			val timeStr = formatTime(timer.durationMillis)
 			edtTxtSec.setText(timeStr.substring(3, 5))
 			edtTxtMin.setText(timeStr.substring(0, 2))
 		}
@@ -139,7 +139,7 @@ class TimerElemHolder(itemView: View, parentAdapter: TimesRecViewAdapter) : Time
 
 	override fun setTimer(timer: Timer) {
 		this.timer = timer as TimerElem
-		val timeStr = formatTime(timer.duration)
+		val timeStr = formatTime(timer.durationMillis)
 		edtTxtSec.setText(timeStr.substring(3, 5))
 		edtTxtMin.setText(timeStr.substring(0, 2))
 	}

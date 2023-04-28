@@ -106,16 +106,16 @@ class TimerLoop(var repeats: Int = 1, name: String  = "untitled") : Timer(name),
 }
 
 
-class TimerElem(var duration: Long = 0, name: String  = "untitled") : Timer(name) {
+class TimerElem(var durationMillis: Long = 0, name: String  = "untitled") : Timer(name) {
     private lateinit var cdTimer: CountDownTimer
-    private var timeRemaining: Long = duration
+    private var timeRemaining: Long = durationMillis
 
 
     override fun start(parent: TimerParent) {
         //set up
         this.parent = parent
         parent.setSound(endSound)
-        timeRemaining = duration
+        timeRemaining = durationMillis
 
         //start timer
         resume()
@@ -149,16 +149,16 @@ class TimerElem(var duration: Long = 0, name: String  = "untitled") : Timer(name
 
     override fun clone(): TimerElem {
         println("copied TimerElem")
-        return TimerElem(duration)
+        return TimerElem(durationMillis)
     }
 
     override fun equals(other: Any?): Boolean {
         if (other !is TimerElem) return false
 
-        return other.duration == duration
+        return other.durationMillis == durationMillis
     }
 
     override fun hashCode(): Int {
-        return duration.hashCode()
+        return durationMillis.hashCode()
     }
 }
