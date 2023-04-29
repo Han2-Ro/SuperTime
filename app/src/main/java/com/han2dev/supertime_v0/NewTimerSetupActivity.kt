@@ -8,6 +8,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -32,31 +33,27 @@ import com.han2dev.supertime_v0.ui.theme.SuperTime_v0Theme
 
 class NewTimerSetupActivity : ComponentActivity() {
 
-	val timer: MutableState<Timer?> = mutableStateOf(TimerLoop())
+	//val timer: MutableState<Timer?> = mutableStateOf(TimerLoop())
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
 		val viewModel = ViewModelProvider(this)[TimerSetupViewModel::class.java]
+		viewModel.load(intent, this.applicationContext)
 
-		val timerId = intent.getStringExtra("timer_id")
-			?: throw NullPointerException("Found no \"timer_id\": String in intent extra.")
-		println("name from intent: $timerId")
-		timer.value = SavesManager.load(this, timerId) //?: throw IllegalArgumentException("timer_id '$timerId' could not be parsed to Timer")
-
-		title = timer.value?.name
+		title = "timer.value?.name"
 
 		setContent {
-			val timer by viewModel.timer.observeAsState(TimerLoop())
+			val timer by viewModel.timer.observeAsState()
 
 			SuperTime_v0Theme {
-				Base(timer, this)
+				Base(timer, this) { viewModel.onTimerChanged(it) }
 			}
 		}
 	}
 }
 
 @Composable
-fun Base(timer: Timer?, activity: Activity) {
+fun Base(timer: Timer?, activity: Activity, onValueChange: (Timer) -> Unit) {
 	Scaffold (
 		topBar = {
 			TopAppBar(
@@ -74,22 +71,22 @@ fun Base(timer: Timer?, activity: Activity) {
 			)
 		}
 	) {contentPadding ->
-		Root(contentPadding, timer, activity)
+		Root(contentPadding, timer, activity) { onValueChange(it) }
 	}
 }
 
 @Composable
-fun Root(contentPadding: PaddingValues, timer: Timer?, activity: Activity) {
+fun Root(contentPadding: PaddingValues, timer: Timer?, activity: Activity, onValueChange: (Timer) -> Unit) {
 	Box(modifier = Modifier
 		.fillMaxSize()
 		.background(Color.Cyan)
 		.padding(contentPadding)) {
 		when (timer) {
 			is TimerLoop -> {
-				LoopLI(timer as TimerLoop)
+				LoopLI(timer) { onValueChange(it) }
 			}
 			is TimerElem -> {
-				TimeLI(timer as TimerElem)
+				TimeLI(timer)
 			}
 			null -> {
 				Column {
@@ -197,35 +194,48 @@ fun TimeLI(timer: TimerElem) {
 }
 
 @Composable
-fun LoopLI(timerLoop: TimerLoop) {
-	val repeats: MutableState<Int?> = remember {
+fun LoopLI(timerLoop: TimerLoop, onValueChange: (Timer) -> Unit) {
+	/*val repeats: MutableState<Int?> = remember {
 		mutableStateOf(timerLoop.repeats)
-	}
+	}*/
 
 	MyListItem(
 		Color(0x20000000),
-		{modifier ->
+		topRowContent = {modifier ->
 			Row (
 				verticalAlignment = Alignment.CenterVertically,
 				modifier = modifier)
 			{
 				Text(text = "repeat ")
-				MyTextField(text = repeats.toString())
+				MyTextField(
+					modifier = Modifier.testTag("repeatsField"),
+					text = timerLoop.repeats.toString(),
+					onValueChange = {
+						timerLoop.repeats = it ?: 0
+						onValueChange(timerLoop)
+					})
 				Text(text = " time(s)") //TODO: dynamic plural
 			}
-	},{
-		LazyColumn (
+	}
+	) {
+		LazyColumn(
 			modifier = Modifier.wrapContentHeight()
-		){
-			items(timerLoop.childrenTimers)
-			{ timer ->
-				if (timer is TimerElem)
+		) {
+			itemsIndexed(timerLoop.childrenTimers)
+			{index, timer ->
+				if (timer is TimerElem) {
+					println("adding timeLI")
 					TimeLI(timer)
-				else if (timer is TimerLoop)
-					LoopLI(timer)
+				} else if (timer is TimerLoop) {
+					println("adding loopLI")
+					LoopLI(timer) {
+						timerLoop.childrenTimers[index] = it
+						onValueChange(timerLoop)
+					}
+				}
 			}
 		}
-	})
+	}
 }
 
 @Composable

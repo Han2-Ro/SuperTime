@@ -22,7 +22,10 @@ class TimerSetupTest {
 
 	@Before
 	fun setUp() {
-		SavesManager.save(context, TimerElem(1111 , "test"),)
+		val timer = TimerLoop(name = "test")
+		timer.childrenTimers.add(TimerElem())
+		timer.childrenTimers.add(TimerElem())
+		SavesManager.save(context, timer)
 	}
 
 	@After
@@ -41,14 +44,11 @@ class TimerSetupTest {
 
 
 	@Test
-	fun test_textFieldInput() {
+	fun test_timeTextFieldInput() {
 		scenario = ActivityScenario.launch(
 			createActivityIntent()
 		)
 
-		val timerLoop = TimerLoop()
-		timerLoop.childrenTimers.add(TimerElem(5000))
-		//rule.setContent { TimeLI(timer = TimerElem()) }
 		Thread.sleep(500)
 		rule.onNodeWithTag("minutesField").performTextClearance()
 		rule.onNodeWithTag("minutesField").performTextInput("1")
@@ -59,6 +59,19 @@ class TimerSetupTest {
 		rule.onNodeWithText(" sec").assertExists()
 		rule.onNodeWithText("1").assertExists()
 		rule.onNodeWithText("30").assertExists()
+	}
+
+	@Test
+	fun test_repeatsTextFieldInput() {
+		scenario = ActivityScenario.launch(
+			createActivityIntent()
+		)
+
+		Thread.sleep(500)
+		rule.onNodeWithTag("repeatsField").performTextClearance()
+		rule.onNodeWithTag("repeatsField").performTextInput("22")
+		Thread.sleep(5000)
+		rule.onNodeWithText("22").assertExists()
 	}
 
 	@Test
