@@ -22,9 +22,11 @@ class TimerSetupTest {
 
 	@Before
 	fun setUp() {
-		val timer = TimerLoop(name = "test")
-		timer.childrenTimers.add(TimerElem())
-		timer.childrenTimers.add(TimerElem())
+		val timer = TimerLoopData(
+			name = "test",
+			childrenTimers = listOf(
+				TimerElemData(),
+				TimerElemData()))
 		SavesManager.save(context, timer)
 	}
 
@@ -87,8 +89,7 @@ class TimerSetupTest {
 
 	@Test
 	fun editAndSaveTimer_loadTimer_isEqual() {
-		val timer1 = TimerLoop(name = "test")
-		timer1.childrenTimers.add(TimerElem())
+		val timer1 = TimerLoopData(name = "test", childrenTimers = listOf(TimerElemData()))
 		SavesManager.save(context, timer1)
 
 		scenario = ActivityScenario.launch(
@@ -106,10 +107,10 @@ class TimerSetupTest {
 
 		Thread.sleep(500)
 
-		val timer2 = SavesManager.load(context, "test") as TimerLoop
+		val timer2 = SavesManager.load(context, "test") as TimerLoopData
 		assert(timer2.childrenTimers.size == 1)
 		assert(timer2.repeats == 2)
-		assert(timer2.childrenTimers[0] is TimerElem)
-		assert((timer2.childrenTimers[0] as TimerElem).durationMillis == 90000L)
+		assert(timer2.childrenTimers[0] is TimerElemData)
+		assert((timer2.childrenTimers[0] as TimerElemData).durationMillis == 90000L)
 	}
 }

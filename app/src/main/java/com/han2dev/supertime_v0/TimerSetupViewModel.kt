@@ -6,6 +6,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -22,9 +23,9 @@ class TimerSetupViewModel() : ViewModel() {
 		if (timer != null) _timerNode.value = timerToNode(timer)
 	}
 
-	private fun timerToNode(timer: Timer): TimerNode {
+	private fun timerToNode(timer: TimerData): TimerNode {
 		return when (timer) {
-			is TimerElem -> {
+			is TimerElemData -> {
 				//TODO: consider using a better way to get minutes and seconds
 				val timeStr = formatTime(timer.durationMillis)
 				TimerElemNode(
@@ -32,25 +33,44 @@ class TimerSetupViewModel() : ViewModel() {
 					minutes = mutableStateOf(timeStr.substring(0, 2).toInt()),
 					seconds = mutableStateOf(timeStr.substring(3, 5).toInt()),
 			)}
-			is TimerLoop -> TimerLoopNode(
+			is TimerLoopData -> TimerLoopNode(
 				name = timer.name,
-				childrenTimers = mutableStateListOf<TimerNode>().apply {
-					timer.childrenTimers.forEach {
-						add(timerToNode(it))
-					}
-				},
+				childrenTimers = timer.childrenTimers.map { timerToNode(it) }.toMutableStateList(),
 				repeats = mutableStateOf(timer.repeats),
 			)
-			else -> throw IllegalArgumentException("Unknown timer type.")
+		}
+	}
+
+
+	private fun nodeToTimerData(TimerNode: TimerNode): TimerData {
+		return when (TimerNode) {
+			is TimerElemNode -> {
+				TimerElemData(
+					name = TimerNode.name,
+					//TODO: remove non-null assertions
+					durationMillis = TimerNode.minutes.value!! * 60 * 1000L + TimerNode.seconds.value!! * 1000L,
+				)
+			}
+			is TimerLoopNode -> {
+				TimerLoopData(
+					name = TimerNode.name,
+					childrenTimers = TimerNode.childrenTimers.map { nodeToTimerData(it) },
+					repeats = TimerNode.repeats.value!!,
+				)
+			}
 		}
 	}
 
 	fun save(context: Context) {
-		//TODO
+		if (SavesManager.save(context, nodeToTimerData(_timerNode.value!!))) {
+			println("saved") //TODO: give feedback to user
+		} else {
+			println("failed to save") //TODO: give feedback to user
+		}
 	}
 }
 
-abstract class TimerNode {abstract var name: String}
+sealed class TimerNode {abstract var name: String}
 
 data class TimerElemNode(
 	override var name: String = "",

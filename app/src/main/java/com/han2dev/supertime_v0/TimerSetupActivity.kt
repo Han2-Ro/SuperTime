@@ -23,9 +23,9 @@ class TimerSetupActivity : AppCompatActivity() {
 		val timerId = intent.getStringExtra("timer_id")
 			?: throw NullPointerException("Found no \"timer_name\": String in intent extra.")
 		println("name from intent: $timerId")
-		val timer: Timer = SavesManager.load(this, timerId) ?: throw IllegalArgumentException("timer_id could not be parsed to Timer")
+		val timer: Timer = TODO("removed")
 
-		title = timer.name
+		title = timer.data.name
 
 		/*recyclerView = findViewById(R.id.rootRecView)
 		adapter = TimesRecViewAdapter(this, recyclerView)
@@ -48,7 +48,7 @@ class TimerSetupActivity : AppCompatActivity() {
 					.setCancelable(false)
 					.setPositiveButton("Yes") { _, _ ->
 						// Save changes
-						if (SavesManager.save(this@TimerSetupActivity, adapter.timerLoop)) {
+						if (SavesManager.save(this@TimerSetupActivity, TODO("removed"))) {
 							Toast.makeText(this@TimerSetupActivity, "Saved", Toast.LENGTH_SHORT).show()
 							finish()
 						} else {
@@ -77,14 +77,14 @@ class TimerSetupActivity : AppCompatActivity() {
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
 		when (item.itemId) {
 			R.id.optSave -> {
-				if (SavesManager.save(this, adapter.timerLoop)) {
+				if (SavesManager.save(this, TODO("removed"))) {
 					Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show()
 				} else {
 					Toast.makeText(this, "Failed to save", Toast.LENGTH_SHORT).show()
 				}
 			}
-			R.id.optAddTimer -> adapter.add(TimerElem())
-			R.id.optAddLoop -> adapter.add(TimerLoop())
+			R.id.optAddTimer -> adapter.add(TODO("removed"))
+			R.id.optAddLoop -> adapter.add(TODO("removed"))
 		}
 		return super.onOptionsItemSelected(item)
 	}

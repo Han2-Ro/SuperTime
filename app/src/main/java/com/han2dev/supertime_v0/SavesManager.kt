@@ -1,20 +1,16 @@
 package com.han2dev.supertime_v0
 
 import android.content.Context
-import com.google.gson.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
 import java.io.File
 import java.io.FileNotFoundException
 
 object SavesManager {
 
 	private const val TIMER_FILE_EXTENSION = ".timer"
-
-	private val gson = GsonBuilder()
-		.registerTypeAdapter(Timer::class.java, TimerSerializer())
-		.registerTypeAdapter(TimerElem::class.java, TimerSerializer())
-		.registerTypeAdapter(TimerLoop::class.java, TimerSerializer())
-		.registerTypeAdapter(Timer::class.java, TimerDeserializer())
-		.create()
 
 
 	/**
@@ -73,8 +69,8 @@ object SavesManager {
 	}
 
 
-	fun loadAll(context: Context) : List<Timer> {
-		val timers = mutableListOf<Timer>()
+	fun loadAll(context: Context) : List<TimerData> {
+		val timers = mutableListOf<TimerData>()
 		val files = context.filesDir.listFiles()
 		println("files: ${files.forEach { it.name }}")
 		for (file in allTimerFiles(context)) {
@@ -103,7 +99,7 @@ object SavesManager {
 	 * @param timer timer to save. Its name + TIMER_FILE_EXTENSION will be the file name.
 	 * @return true if saved successfully
 	 */
-	fun save(context: Context, timer: Timer, override: Boolean = true) : Boolean {
+	fun save(context: Context, timer: TimerData, override: Boolean = true) : Boolean {
 		val json = timerToJson(timer)
 		return saveJson(context, json, timer.name, override)
 	}
@@ -113,7 +109,7 @@ object SavesManager {
 	 * @param name name of the timer to load (with or without extension)
 	 * @return Timer object or null if file not found
 	 */
-	fun load(context: Context, name: String): Timer? {
+	fun load(context: Context, name: String): TimerData? {
 		val json = loadJson(context, name)
 		return timerFromJson(json)
 	}
@@ -148,13 +144,13 @@ object SavesManager {
 		return json
 	}
 
-	fun timerToJson(timer: Timer): String {
-		return gson.toJson(timer)
+	fun timerToJson(timer: TimerData): String {
+		return Json.encodeToString(timer)
 	}
 
-	fun timerFromJson(json: String): Timer? {
+	fun timerFromJson(json: String): TimerData? {
 		return try {
-			gson.fromJson(json, Timer::class.java)
+			Json.decodeFromString<TimerData>(json)
 		} catch (e: Exception) {
 			println("Error: Json deserialization failed")
 			println(e)
@@ -163,89 +159,21 @@ object SavesManager {
 
 	}
 
-	private class TimerSerializer : JsonSerializer<Timer> {
-		override fun serialize(src: Timer, typeOfSrc: java.lang.reflect.Type, context: JsonSerializationContext): JsonElement {
-			val jsonObject = JsonObject()
-			jsonObject.addProperty("name", src.name)
-			jsonObject.addProperty("endSound", src.endSound?.name)
 
-			if (src is TimerLoop) {
-				println("serialize TimerLoop")
-				jsonObject.addProperty("type", TimerType.LOOP.name)
-				jsonObject.addProperty("repeats", src.repeats)
-				jsonObject.add("childrenTimers", gson.toJsonTree(src.childrenTimers))
-			}
-
-			if (src is TimerElem) {
-				println("serialize TimerElem")
-				jsonObject.addProperty("type", TimerType.ELEM.name)
-				jsonObject.addProperty("duration", src.durationMillis)
-			}
-
-			return jsonObject
-		}
-	}
-
-	private class TimerDeserializer : JsonDeserializer<Timer> {
-		override fun deserialize(json: JsonElement, typeOfT: java.lang.reflect.Type, context: JsonDeserializationContext): Timer {
-			val jsonObject = json.asJsonObject
-			val type = jsonObject.get("type").asString
-			val name = jsonObject.get("name").asString
-
-			val timer = when (type) {
-				TimerType.LOOP.name -> {
-					println("deserialize TimerLoop")
-					val repeats = jsonObject.get("repeats").asInt
-					val childrenTimers = jsonObject.get("childrenTimers").asJsonArray
-					val timerLoop = TimerLoop(repeats, name)
-					for (child in childrenTimers) {
-						timerLoop.childrenTimers.add(deserialize(child, typeOfT, context))
-					}
-					timerLoop
-				}
-				TimerType.ELEM.name -> {
-					println("deserialize TimerElem")
-					val duration = jsonObject.get("duration").asLong
-					TimerElem(duration, name)
-				}
-				else -> throw IllegalArgumentException("Unknown type: $type")
-			}
-
-			try {
-				timer.endSound = SoundManager.getSoundByName(jsonObject.get("endSound").asString)
-			} catch (e: Exception) {
-				println("Timer has no end sound")
-			}
-
-			return timer
-		}
-	}
-
-	private class TimerNodeSerializer : JsonSerializer<TimerNode> {
-		override fun serialize(src: TimerNode, typeOfSrc: java.lang.reflect.Type, context: JsonSerializationContext): JsonElement {
-			val jsonObject = JsonObject()
-			jsonObject.addProperty("name", src.name)
-
-
-			return jsonObject
-		}
-	}
-
-	enum class TimerType {
-		ELEM, LOOP
-	}
 }
 
+@Serializable
 sealed class TimerData {abstract var name: String}
 
+@Serializable
 data class TimerElemData(
-	override var name: String = "",
-	var minutes: Int = 0,
-	var seconds: Int = 0,
-) : TimerNode()
+	override var name: String = "untitled",
+	var durationMillis: Long = 0,
+) : TimerData()
 
+@Serializable
 data class TimerLoopData(
-	override var name: String = "",
+	override var name: String = "untitled",
 	var childrenTimers: List<TimerData> = listOf(),
 	var repeats: Int = 1,
-) : TimerNode()
+) : TimerData()

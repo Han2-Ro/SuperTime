@@ -32,13 +32,13 @@ abstract class TimerViewHolder(itemView: View, parentAdapter: TimesRecViewAdapte
 						true
 					}
 					R.id.cut -> {
-						clipboard = getTimer().clone()
+						clipboard = TODO("removed")
 						parentAdapter.remove(adapterPosition)
 						Toast.makeText(itemView.context, "cut", Toast.LENGTH_SHORT).show()
 						true
 					}
 					R.id.copy -> {
-						clipboard = getTimer().clone()
+						clipboard = TODO("removed")
 						Toast.makeText(itemView.context, "copied", Toast.LENGTH_SHORT).show()
 						true
 					}
@@ -122,12 +122,12 @@ class TimerElemHolder(itemView: View, parentAdapter: TimesRecViewAdapter) : Time
 	private fun onTextChanged() {
 		val min: Long = edtTxtMin.text.toString().toLongOrNull() ?: 0
 		val sec: Long = edtTxtSec.text.toString().toLongOrNull() ?: 0
-		timer.durationMillis = (min * 60 + sec) * 1000
+		timer.data.durationMillis = (min * 60 + sec) * 1000
 	}
 
 	private fun onFocusChanged(hasFocus: Boolean) {
 		if (!hasFocus) {
-			val timeStr = formatTime(timer.durationMillis)
+			val timeStr = formatTime(timer.data.durationMillis)
 			edtTxtSec.setText(timeStr.substring(3, 5))
 			edtTxtMin.setText(timeStr.substring(0, 2))
 		}
@@ -139,7 +139,7 @@ class TimerElemHolder(itemView: View, parentAdapter: TimesRecViewAdapter) : Time
 
 	override fun setTimer(timer: Timer) {
 		this.timer = timer as TimerElem
-		val timeStr = formatTime(timer.durationMillis)
+		val timeStr = formatTime(timer.data.durationMillis)
 		edtTxtSec.setText(timeStr.substring(3, 5))
 		edtTxtMin.setText(timeStr.substring(0, 2))
 	}
@@ -158,7 +158,7 @@ class LoopHolder(itemView: View, parentAdapter: TimesRecViewAdapter) : TimerView
 
 	init {
 		editTxtRepeats.addTextChangedListener {
-			timer.repeats = editTxtRepeats.text.toString().toIntOrNull()?:1
+			timer.data.repeats = editTxtRepeats.text.toString().toIntOrNull()?:1
 		}
 	}
 
@@ -168,6 +168,6 @@ class LoopHolder(itemView: View, parentAdapter: TimesRecViewAdapter) : TimerView
 
 	override fun setTimer(timer: Timer) {
 		this.timer = timer as TimerLoop
-		editTxtRepeats.setText(timer.repeats.toString())
+		editTxtRepeats.setText(timer.data.repeats.toString())
 	}
 }

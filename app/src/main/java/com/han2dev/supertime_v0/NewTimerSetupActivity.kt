@@ -43,14 +43,14 @@ class NewTimerSetupActivity : ComponentActivity() {
 			val timer by viewModel.timerNode.observeAsState()
 
 			SuperTime_v0Theme {
-				Base(timer, this)
+				Base(timer, this, viewModel)
 			}
 		}
 	}
 }
 
 @Composable
-fun Base(timer: TimerNode?, activity: Activity) {
+fun Base(timer: TimerNode?, activity: Activity, viewModel: TimerSetupViewModel) {
 	Scaffold (
 		topBar = {
 			TopAppBar(
@@ -61,7 +61,7 @@ fun Base(timer: TimerNode?, activity: Activity) {
 					}
 				},
 				actions = {
-					IconButton(modifier = Modifier.testTag("saveButton"), onClick = { /*TODO*/ }) {
+					IconButton(modifier = Modifier.testTag("saveButton"), onClick = { viewModel.save(activity) }) {
 						Icon(Icons.Default.Done, contentDescription = "Delete")
 					}
 				}
@@ -257,23 +257,22 @@ private fun MyTextField(modifier: Modifier = Modifier, value: Int? = 0, onValueC
 @Preview(showBackground = false)
 @Composable
 fun DefaultPreview() {
-	val timerLoop = TimerLoop(5)
-	timerLoop.childrenTimers = mutableListOf(
-		TimerElem(5000),
-		TimerElem(10000)
-	)
-	val timerLoop2 = TimerLoop(2)
-	timerLoop2.childrenTimers = mutableListOf(
-		timerLoop,
-		TimerElem(90000)
-	)
+	val timer = remember {
+		TimerLoopNode(
+			name = "test",
+			childrenTimers = mutableStateListOf(
+				TimerElemNode(),
+				TimerElemNode())
+		)
+	}
+
 
 	SuperTime_v0Theme {
 		Box (modifier = Modifier
 			.background(Color.Cyan)
 			.padding(0.dp)
 		) {
-			TimeLI(timer = TimerElemNode("untitled"))
+			LoopLI(timer)
 		}
 	}
 }

@@ -29,9 +29,10 @@ class TimerActivity : AppCompatActivity(), TimerParent {
         val timerId = intent.getStringExtra("timer_id")
             ?: throw NullPointerException("Found no \"timer_name\": String in intent extra.")
         println("name from intent: $timerId")
-        val timer: Timer = SavesManager.load(this, timerId) ?: throw IllegalArgumentException("timer_id could not be parsed to Timer")
+        val timerData = SavesManager.load(this, timerId) ?: throw IllegalArgumentException("timer_id could not be parsed to Timer")
+        val timer: Timer = timerFromData(timerData)
 
-        title = timer.name
+        title = timer.data.name
 
 
         btnPause = findViewById(R.id.btnPause)

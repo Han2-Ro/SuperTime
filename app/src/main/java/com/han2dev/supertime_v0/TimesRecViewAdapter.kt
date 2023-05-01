@@ -16,7 +16,7 @@ enum class ViewType {TIME, LOOP}
 class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : RecyclerView.Adapter<TimerViewHolder>() {
 
     private val viewPool = RecyclerView.RecycledViewPool()
-    var timerLoop: TimerLoop = TimerLoop()
+    var timerLoop: TimerLoop = TimerLoop(TODO("removed"))
     var holders: ArrayList<TimerViewHolder> = arrayListOf()
     private var touchHelper: ItemTouchHelper
 
@@ -100,8 +100,8 @@ class TimesRecViewAdapter(val context: Context, recyclerView: RecyclerView) : Re
             holder.recView.setRecycledViewPool(viewPool)
 
             //TODO: remove(only for testing)
-            holder.adapter!!.add(TimerElem(5))
-            holder.adapter!!.add(TimerElem(2))
+            holder.adapter!!.add(TimerElem(TODO("removed")))
+            holder.adapter!!.add(TimerElem(TODO("removed")))
         }
     }
 

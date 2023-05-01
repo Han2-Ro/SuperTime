@@ -11,24 +11,29 @@ import org.junit.Test
 class SavesManagerTest {
 
 	private val context: Context = ApplicationProvider.getApplicationContext()
-	private lateinit var timer1: TimerLoop
-	private lateinit var timer2: TimerLoop
+	private lateinit var timer1: TimerLoopData
+	private lateinit var timer2: TimerLoopData
 
 	@Before
 	fun setUp() {
-		timer1 = TimerLoop(2)
-		timer1.childrenTimers.add(TimerElem(5))
-		timer1.childrenTimers.add(TimerElem(3))
+		timer1 = TimerLoopData(
+			childrenTimers = listOf(
+				TimerElemData(durationMillis = 5000),
+				TimerElemData(durationMillis = 3000)),
+			repeats = 2)
 
-		timer2 = TimerLoop(2)
+		timer2 = TimerLoopData(
+			childrenTimers = listOf(
+				TimerLoopData(
+					childrenTimers = listOf(
+						TimerElemData(durationMillis = 5000)),
+					repeats = 1),
+				TimerLoopData(
+					childrenTimers = listOf(
+						TimerElemData(durationMillis = 3000)),
+					repeats = 10)),
+			repeats = 1)
 
-		val loop1 = TimerLoop(1)
-		loop1.childrenTimers.add(TimerElem(5))
-		timer2.childrenTimers.add(loop1)
-
-		val loop2 = TimerLoop(10)
-		loop2.childrenTimers.add(TimerElem(3))
-		timer2.childrenTimers.add(loop2)
 	}
 
 	@After

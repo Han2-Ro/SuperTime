@@ -16,13 +16,20 @@ fun formatTime(millis: Long): String {
     return String.format("%02d:%02d.%02d", minute, second, centis)
 }
 
-abstract class Timer(var name: String) {
+fun timerFromData(data: TimerData): Timer {
+    return when (data) {
+        is TimerElemData -> TimerElem(data)
+        is TimerLoopData -> TimerLoop(data)
+    }
+}
+
+abstract class Timer() {
+    abstract val data: TimerData
     protected lateinit var parent: TimerParent
     var endSound: SoundManager.TimerEndSound? = null
     abstract fun start(parent: TimerParent)
     abstract fun pause()
     abstract fun resume()
-    abstract fun clone(): Timer
 }
 
 interface TimerParent {
@@ -31,14 +38,16 @@ interface TimerParent {
     fun setSound(sound: SoundManager.TimerEndSound?)
 }
 
-class TimerLoop(var repeats: Int = 1, name: String  = "untitled") : Timer(name), TimerParent {
+class TimerLoop(override val data: TimerLoopData) : Timer(), TimerParent {
     private var repeatsLeft: Int = 1
     private var currentTimer: Int = 0
-    var childrenTimers: MutableList<Timer> = mutableListOf()
+    var childrenTimers: MutableList<Timer> = data.childrenTimers.map { timerData ->
+        timerFromData(timerData)
+    }.toMutableList()
 
     override fun start(parent: TimerParent) {
         this.parent = parent
-        repeatsLeft = repeats
+        repeatsLeft = data.repeats
         currentTimer = 0
 
         if(childrenTimers.size > currentTimer) {
@@ -86,36 +95,29 @@ class TimerLoop(var repeats: Int = 1, name: String  = "untitled") : Timer(name),
     }
 
 
-    override fun clone(): TimerLoop {
-        println("Copied Loop")
-        val copy = TimerLoop(repeats)
-        copy.childrenTimers = childrenTimers.toMutableList()
-        return copy
-    }
-
     override fun equals(other: Any?): Boolean {
         if (other !is TimerLoop) return false
-        return other.repeats == repeats && other.childrenTimers == childrenTimers
+        return other.data.repeats == data.repeats && other.childrenTimers == childrenTimers
     }
 
     override fun hashCode(): Int {
-        var result = repeats
+        var result = data.repeats
         result = 31 * result + childrenTimers.hashCode()
         return result
     }
 }
 
 
-class TimerElem(var durationMillis: Long = 0, name: String  = "untitled") : Timer(name) {
+class TimerElem(override val data: TimerElemData) : Timer() {
     private lateinit var cdTimer: CountDownTimer
-    private var timeRemaining: Long = durationMillis
+    private var timeRemaining: Long = data.durationMillis
 
 
     override fun start(parent: TimerParent) {
         //set up
         this.parent = parent
         parent.setSound(endSound)
-        timeRemaining = durationMillis
+        timeRemaining = data.durationMillis
 
         //start timer
         resume()
@@ -147,18 +149,13 @@ class TimerElem(var durationMillis: Long = 0, name: String  = "untitled") : Time
         parent.next()
     }
 
-    override fun clone(): TimerElem {
-        println("copied TimerElem")
-        return TimerElem(durationMillis)
-    }
-
     override fun equals(other: Any?): Boolean {
         if (other !is TimerElem) return false
 
-        return other.durationMillis == durationMillis
+        return other.data.durationMillis == data.durationMillis
     }
 
     override fun hashCode(): Int {
-        return durationMillis.hashCode()
+        return data.durationMillis.hashCode()
     }
 }
