@@ -7,7 +7,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -16,7 +15,6 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -33,7 +31,6 @@ import com.han2dev.supertime_v0.ui.theme.SuperTime_v0Theme
 
 class NewTimerSetupActivity : ComponentActivity() {
 
-	//val timer: MutableState<Timer?> = mutableStateOf(TimerLoop())
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
@@ -43,17 +40,17 @@ class NewTimerSetupActivity : ComponentActivity() {
 		title = "timer.value?.name"
 
 		setContent {
-			val timer by viewModel.timer.observeAsState()
+			val timer by viewModel.timerNode.observeAsState()
 
 			SuperTime_v0Theme {
-				Base(timer, this) { viewModel.onTimerChanged(it) }
+				Base(timer, this)
 			}
 		}
 	}
 }
 
 @Composable
-fun Base(timer: Timer?, activity: Activity, onValueChange: (Timer) -> Unit) {
+fun Base(timer: TimerNode?, activity: Activity) {
 	Scaffold (
 		topBar = {
 			TopAppBar(
@@ -71,21 +68,21 @@ fun Base(timer: Timer?, activity: Activity, onValueChange: (Timer) -> Unit) {
 			)
 		}
 	) {contentPadding ->
-		Root(contentPadding, timer, activity) { onValueChange(it) }
+		Root(contentPadding, timer, activity)
 	}
 }
 
 @Composable
-fun Root(contentPadding: PaddingValues, timer: Timer?, activity: Activity, onValueChange: (Timer) -> Unit) {
+fun Root(contentPadding: PaddingValues, timer: TimerNode?, activity: Activity) {
 	Box(modifier = Modifier
 		.fillMaxSize()
 		.background(Color.Cyan)
 		.padding(contentPadding)) {
 		when (timer) {
-			is TimerLoop -> {
-				LoopLI(timer) { onValueChange(it) }
+			is TimerLoopNode -> {
+				LoopLI(timer)
 			}
-			is TimerElem -> {
+			is TimerElemNode -> {
 				TimeLI(timer)
 			}
 			null -> {
@@ -167,14 +164,15 @@ fun MyListItem(backgroundColor: Color = Color.LightGray, topRowContent: @Composa
 }
 
 @Composable
-fun TimeLI(timer: TimerElem) {
+fun TimeLI(timer: TimerElemNode) {
+	/*TODO: remove if not needed anymore
 	val timeStr = formatTime(timer.durationMillis)
 	val minutes: MutableState<Int?> = remember {
 		mutableStateOf(timeStr.substring(0, 2).toInt())
 	}
 	val seconds: MutableState<Int?> = remember {
 		mutableStateOf(timeStr.substring(3, 5).toInt())
-	}
+	}*/
 
 	MyListItem(
 		Color(0x70FFFFFF),
@@ -184,9 +182,13 @@ fun TimeLI(timer: TimerElem) {
 				modifier = modifier
 			) {
 
-				MyTextField(Modifier.testTag("minutesField"))
+				MyTextField(Modifier.testTag("minutesField"),
+					value = timer.minutes.value,
+					onValueChange = {timer.minutes.value = it})
 				Text(text = " min  ")
-				MyTextField(Modifier.testTag("secondsField"))
+				MyTextField(Modifier.testTag("secondsField"),
+					value = timer.seconds.value,
+					onValueChange = {timer.seconds.value = it})
 				Text(text = " sec")
 			}
 
@@ -194,7 +196,7 @@ fun TimeLI(timer: TimerElem) {
 }
 
 @Composable
-fun LoopLI(timerLoop: TimerLoop, onValueChange: (Timer) -> Unit) {
+fun LoopLI(timerLoop: TimerLoopNode) {
 	/*val repeats: MutableState<Int?> = remember {
 		mutableStateOf(timerLoop.repeats)
 	}*/
@@ -209,10 +211,9 @@ fun LoopLI(timerLoop: TimerLoop, onValueChange: (Timer) -> Unit) {
 				Text(text = "repeat ")
 				MyTextField(
 					modifier = Modifier.testTag("repeatsField"),
-					text = timerLoop.repeats.toString(),
+					value = timerLoop.repeats.value,
 					onValueChange = {
-						timerLoop.repeats = it ?: 0
-						onValueChange(timerLoop)
+						timerLoop.repeats.value = it
 					})
 				Text(text = " time(s)") //TODO: dynamic plural
 			}
@@ -223,15 +224,12 @@ fun LoopLI(timerLoop: TimerLoop, onValueChange: (Timer) -> Unit) {
 		) {
 			itemsIndexed(timerLoop.childrenTimers)
 			{index, timer ->
-				if (timer is TimerElem) {
+				if (timer is TimerElemNode) {
 					println("adding timeLI")
 					TimeLI(timer)
-				} else if (timer is TimerLoop) {
+				} else if (timer is TimerLoopNode) {
 					println("adding loopLI")
-					LoopLI(timer) {
-						timerLoop.childrenTimers[index] = it
-						onValueChange(timerLoop)
-					}
+					LoopLI(timer)
 				}
 			}
 		}
@@ -239,9 +237,9 @@ fun LoopLI(timerLoop: TimerLoop, onValueChange: (Timer) -> Unit) {
 }
 
 @Composable
-private fun MyTextField(modifier: Modifier = Modifier, text: String = "", onValueChange: (Int?) -> Unit = {}) {
+private fun MyTextField(modifier: Modifier = Modifier, value: Int? = 0, onValueChange: (Int?) -> Unit = {}) {
 	BasicTextField(
-		value = text,
+		value = value?.toString() ?: "",
 		textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
 		keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
 		modifier = modifier
@@ -275,7 +273,7 @@ fun DefaultPreview() {
 			.background(Color.Cyan)
 			.padding(0.dp)
 		) {
-			TimeLI(timer = TimerElem(5000))
+			TimeLI(timer = TimerElemNode("untitled"))
 		}
 	}
 }

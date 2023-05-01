@@ -166,18 +166,19 @@ object SavesManager {
 	private class TimerSerializer : JsonSerializer<Timer> {
 		override fun serialize(src: Timer, typeOfSrc: java.lang.reflect.Type, context: JsonSerializationContext): JsonElement {
 			val jsonObject = JsonObject()
-			jsonObject.addProperty("type", src.javaClass.name)
 			jsonObject.addProperty("name", src.name)
 			jsonObject.addProperty("endSound", src.endSound?.name)
 
 			if (src is TimerLoop) {
 				println("serialize TimerLoop")
+				jsonObject.addProperty("type", TimerType.LOOP.name)
 				jsonObject.addProperty("repeats", src.repeats)
 				jsonObject.add("childrenTimers", gson.toJsonTree(src.childrenTimers))
 			}
 
 			if (src is TimerElem) {
 				println("serialize TimerElem")
+				jsonObject.addProperty("type", TimerType.ELEM.name)
 				jsonObject.addProperty("duration", src.durationMillis)
 			}
 
@@ -191,22 +192,24 @@ object SavesManager {
 			val type = jsonObject.get("type").asString
 			val name = jsonObject.get("name").asString
 
-			val timer = if (type == TimerLoop::class.java.name) {
-				println("deserialize TimerLoop")
-				val repeats = jsonObject.get("repeats").asInt
-				val childrenTimers = jsonObject.get("childrenTimers").asJsonArray
-				val timerLoop = TimerLoop(repeats, name)
-				for (child in childrenTimers) {
-					timerLoop.childrenTimers.add(deserialize(child, typeOfT, context))
+			val timer = when (type) {
+				TimerType.LOOP.name -> {
+					println("deserialize TimerLoop")
+					val repeats = jsonObject.get("repeats").asInt
+					val childrenTimers = jsonObject.get("childrenTimers").asJsonArray
+					val timerLoop = TimerLoop(repeats, name)
+					for (child in childrenTimers) {
+						timerLoop.childrenTimers.add(deserialize(child, typeOfT, context))
+					}
+					timerLoop
 				}
-				timerLoop
+				TimerType.ELEM.name -> {
+					println("deserialize TimerElem")
+					val duration = jsonObject.get("duration").asLong
+					TimerElem(duration, name)
+				}
+				else -> throw IllegalArgumentException("Unknown type: $type")
 			}
-			else if (type == TimerElem::class.java.name) {
-				println("deserialize TimerElem")
-				val duration = jsonObject.get("duration").asLong
-				TimerElem(duration, name)
-			}
-			else throw IllegalArgumentException("Unknown type: $type")
 
 			try {
 				timer.endSound = SoundManager.getSoundByName(jsonObject.get("endSound").asString)
@@ -217,4 +220,32 @@ object SavesManager {
 			return timer
 		}
 	}
+
+	private class TimerNodeSerializer : JsonSerializer<TimerNode> {
+		override fun serialize(src: TimerNode, typeOfSrc: java.lang.reflect.Type, context: JsonSerializationContext): JsonElement {
+			val jsonObject = JsonObject()
+			jsonObject.addProperty("name", src.name)
+
+
+			return jsonObject
+		}
+	}
+
+	enum class TimerType {
+		ELEM, LOOP
+	}
 }
+
+sealed class TimerData {abstract var name: String}
+
+data class TimerElemData(
+	override var name: String = "",
+	var minutes: Int = 0,
+	var seconds: Int = 0,
+) : TimerNode()
+
+data class TimerLoopData(
+	override var name: String = "",
+	var childrenTimers: List<TimerData> = listOf(),
+	var repeats: Int = 1,
+) : TimerNode()

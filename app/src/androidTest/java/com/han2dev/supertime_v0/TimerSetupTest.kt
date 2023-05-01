@@ -49,16 +49,18 @@ class TimerSetupTest {
 			createActivityIntent()
 		)
 
-		Thread.sleep(500)
-		rule.onNodeWithTag("minutesField").performTextClearance()
-		rule.onNodeWithTag("minutesField").performTextInput("1")
-		rule.onNodeWithTag("secondsField").performTextClearance()
-		rule.onNodeWithTag("secondsField").performTextInput("30")
-		Thread.sleep(5000)
-		rule.onNodeWithText(" min  ").assertExists()
-		rule.onNodeWithText(" sec").assertExists()
-		rule.onNodeWithText("1").assertExists()
-		rule.onNodeWithText("30").assertExists()
+		val minutesField = rule.onAllNodesWithTag("minutesField").onFirst()
+		minutesField.performTextClearance()
+		minutesField.performTextInput("1")
+
+		val secondsField = rule.onAllNodesWithTag("secondsField").onFirst()
+		secondsField.performTextClearance()
+		secondsField.performTextInput("30")
+
+		rule.onAllNodesWithText(" min  ").onFirst().assertExists()
+		rule.onAllNodesWithText(" sec").onFirst().assertExists()
+		rule.onAllNodesWithText("1").onFirst().assertExists()
+		rule.onAllNodesWithText("30").onFirst().assertExists()
 	}
 
 	@Test
@@ -67,11 +69,11 @@ class TimerSetupTest {
 			createActivityIntent()
 		)
 
-		Thread.sleep(500)
-		rule.onNodeWithTag("repeatsField").performTextClearance()
-		rule.onNodeWithTag("repeatsField").performTextInput("22")
-		Thread.sleep(5000)
-		rule.onNodeWithText("22").assertExists()
+		val repeatsField = rule.onAllNodesWithTag("repeatsField").onFirst()
+		repeatsField.performTextClearance()
+		repeatsField.performTextInput("22")
+
+		rule.onAllNodesWithText("22").onFirst().assertExists()
 	}
 
 	@Test
@@ -80,13 +82,15 @@ class TimerSetupTest {
 			createActivityIntent("nonexistent")
 		)
 
-		Thread.sleep(500)
 		rule.onNodeWithText("Go back").performClick()
-		Thread.sleep(500)
 	}
 
 	@Test
 	fun editAndSaveTimer_loadTimer_isEqual() {
+		val timer1 = TimerLoop(name = "test")
+		timer1.childrenTimers.add(TimerElem())
+		SavesManager.save(context, timer1)
+
 		scenario = ActivityScenario.launch(
 			createActivityIntent()
 		)
@@ -95,10 +99,17 @@ class TimerSetupTest {
 		rule.onNodeWithTag("minutesField").performTextInput("1")
 		rule.onNodeWithTag("secondsField").performTextClearance()
 		rule.onNodeWithTag("secondsField").performTextInput("30")
-		Thread.sleep(3000)
+		rule.onNodeWithTag("repeatsField").performTextClearance()
+		rule.onNodeWithTag("repeatsField").performTextInput("2")
+
 		rule.onNodeWithTag("saveButton").performClick()
+
 		Thread.sleep(500)
-		val timer = SavesManager.load(context, "test") as TimerElem
-		assert(timer.durationMillis == 90000L)
+
+		val timer2 = SavesManager.load(context, "test") as TimerLoop
+		assert(timer2.childrenTimers.size == 1)
+		assert(timer2.repeats == 2)
+		assert(timer2.childrenTimers[0] is TimerElem)
+		assert((timer2.childrenTimers[0] as TimerElem).durationMillis == 90000L)
 	}
 }
