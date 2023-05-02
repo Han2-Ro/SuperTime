@@ -39,7 +39,7 @@ class TimerSetupTest {
 	private fun createActivityIntent(
 		timerId: String = "test",
 	): Intent {
-		val intent = Intent(context, NewTimerSetupActivity::class.java)
+		val intent = Intent(context, TimerSetupActivity::class.java)
 		intent.putExtra("timer_id", timerId)
 		return intent
 	}

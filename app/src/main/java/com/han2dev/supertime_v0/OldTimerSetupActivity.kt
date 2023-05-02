@@ -9,7 +9,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 
-
+@Deprecated("Replaced by TimerSetupActivity")
 class OldTimerSetupActivity : AppCompatActivity() {
 
 	private lateinit var recyclerView: RecyclerView

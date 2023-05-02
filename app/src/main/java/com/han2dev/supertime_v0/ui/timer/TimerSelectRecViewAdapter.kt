@@ -34,7 +34,7 @@ class TimerSelectRecViewAdapter(private val activity: FragmentActivity) : Recycl
         }
 
         holder.btnEdit.setOnClickListener {
-            startActivityWithTimer(position, NewTimerSetupActivity::class.java)
+            startActivityWithTimer(position, TimerSetupActivity::class.java)
         }
 
         holder.btnDelete.setOnClickListener {
