@@ -37,11 +37,11 @@ data class DropdownItem(
 @Composable
 fun TimerListItem(
 	backgroundColor: Color = Color.LightGray,
+	dropdownItems: List<DropdownItem> = listOf(DropdownItem("Error :/") {}),
 	topRowContent: @Composable (Modifier) -> Unit,
 	extraContent: @Composable () -> Unit = {},
-	dropdownItems: List<DropdownItem> = listOf(DropdownItem("Error :/") {}),
 ) {
-	var isContextMenuVisible by rememberSaveable {
+	var isContextMenuVisible = rememberSaveable {
 		mutableStateOf(false)
 	}
 
@@ -68,25 +68,10 @@ fun TimerListItem(
 			Icon(
 				imageVector = Icons.Default.Settings,
 				contentDescription = null,
-				modifier = Modifier.clickable { isContextMenuVisible = true }
+				modifier = Modifier.clickable { isContextMenuVisible.value = true }
 			)
 
-			DropdownMenu(
-				expanded = isContextMenuVisible,
-				onDismissRequest = { isContextMenuVisible = false },
-				offset = DpOffset(1000.dp, 0.dp), //TODO: fix this hardcoded offset
-			) {
-				dropdownItems.forEach { item ->
-					DropdownMenuItem(
-						onClick = {
-							item.onClick()
-							isContextMenuVisible = false
-						}
-					) {
-						Text(text = item.text)
-					}
-				}
-			}
+			MyDropdownMenu(isContextMenuVisible, dropdownItems)
 
 			Column {
 				Icon(
@@ -121,6 +106,29 @@ fun TimerListItem(
 			extraContent()
 		}
 
+	}
+}
+
+@Composable
+fun MyDropdownMenu(
+	isContextMenuVisible: MutableState<Boolean>,
+	dropdownItems: List<DropdownItem>
+) {
+	DropdownMenu(
+		expanded = isContextMenuVisible.value,
+		onDismissRequest = { isContextMenuVisible.value = false },
+		offset = DpOffset(1000.dp, 0.dp), //TODO: fix this hardcoded offset
+	) {
+		dropdownItems.forEach { item ->
+			DropdownMenuItem(
+				onClick = {
+					item.onClick()
+					isContextMenuVisible.value = false
+				}
+			) {
+				Text(text = item.text)
+			}
+		}
 	}
 }
 

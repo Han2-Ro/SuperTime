@@ -2,6 +2,7 @@ package com.han2dev.supertime_v0
 
 import android.content.Context
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -63,14 +64,28 @@ class TimerSetupViewModel() : ViewModel() {
 
 	fun save(context: Context) {
 		if (SavesManager.save(context, nodeToTimerData(_timerNode.value!!))) {
-			println("saved") //TODO: give feedback to user
+			Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
 		} else {
-			println("failed to save") //TODO: give feedback to user
+			Toast.makeText(context, "Failed to save", Toast.LENGTH_SHORT).show()
+		}
+	}
+
+	fun addTimer(timerData: TimerData) {
+		if (_timerNode.value is TimerLoopNode) {
+			(_timerNode.value as TimerLoopNode).childrenTimers.add(timerToNode(timerData))
+		}
+		else {
+			Toast.makeText(null, "Can only add a timer to loops", Toast.LENGTH_SHORT).show()
 		}
 	}
 }
 
-sealed class TimerNode {abstract var name: String}
+sealed class TimerNode {
+	abstract var name: String
+	val dropdownItems = listOf(
+		DropdownItem("Delete") {}
+	)
+}
 
 data class TimerElemNode(
 	override var name: String = "",

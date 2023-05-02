@@ -9,11 +9,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -33,17 +31,20 @@ class TimerSetupActivity : ComponentActivity() {
 		title = "timer.value?.name"
 
 		setContent {
-			val timer by viewModel.timerNode.observeAsState()
-
 			SuperTime_v0Theme {
-				Base(timer, this, viewModel)
+				Base(this, viewModel)
 			}
 		}
 	}
 }
 
 @Composable
-fun Base(timer: TimerNode?, activity: Activity, viewModel: TimerSetupViewModel) {
+fun Base(activity: Activity, viewModel: TimerSetupViewModel) {
+	val timer by viewModel.timerNode.observeAsState()
+	var isAddMenuVisable = rememberSaveable {
+		mutableStateOf(false)
+	}
+
 	Scaffold (
 		topBar = {
 			TopAppBar(
@@ -54,11 +55,21 @@ fun Base(timer: TimerNode?, activity: Activity, viewModel: TimerSetupViewModel) 
 					}
 				},
 				actions = {
+					IconButton(modifier = Modifier.testTag("addButton"), onClick = { isAddMenuVisable.value = true }) {
+						Icon(Icons.Default.Add, contentDescription = "Add")
+					}
+					MyDropdownMenu(isAddMenuVisable, listOf(
+						DropdownItem("Timer") { viewModel.addTimer(TimerElemData()) },
+						DropdownItem("Loop") {viewModel.addTimer(TimerLoopData()) },
+					))
+
 					IconButton(modifier = Modifier.testTag("saveButton"), onClick = { viewModel.save(activity) }) {
-						Icon(Icons.Default.Done, contentDescription = "Delete")
+						Icon(Icons.Default.Done, contentDescription = "Save")
 					}
 				}
 			)
+
+
 		}
 	) {contentPadding ->
 		Root(contentPadding, timer, activity)
