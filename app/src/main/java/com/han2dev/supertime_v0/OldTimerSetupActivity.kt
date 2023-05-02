@@ -7,11 +7,10 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 
-class TimerSetupActivity : AppCompatActivity() {
+class OldTimerSetupActivity : AppCompatActivity() {
 
 	private lateinit var recyclerView: RecyclerView
 	private lateinit var adapter: TimesRecViewAdapter
@@ -43,16 +42,16 @@ class TimerSetupActivity : AppCompatActivity() {
 		//TODO: Only ask to save changes if changes have been made
 		val callback = object : OnBackPressedCallback(true) {
 			override fun handleOnBackPressed() {
-				val builder = AlertDialog.Builder(this@TimerSetupActivity)
+				val builder = AlertDialog.Builder(this@OldTimerSetupActivity)
 				builder.setMessage("Do you want to save changes?")
 					.setCancelable(false)
 					.setPositiveButton("Yes") { _, _ ->
 						// Save changes
-						if (SavesManager.save(this@TimerSetupActivity, TODO("removed"))) {
-							Toast.makeText(this@TimerSetupActivity, "Saved", Toast.LENGTH_SHORT).show()
+						if (SavesManager.save(this@OldTimerSetupActivity, TODO("removed"))) {
+							Toast.makeText(this@OldTimerSetupActivity, "Saved", Toast.LENGTH_SHORT).show()
 							finish()
 						} else {
-							Toast.makeText(this@TimerSetupActivity, "Failed to save", Toast.LENGTH_SHORT).show()
+							Toast.makeText(this@OldTimerSetupActivity, "Failed to save", Toast.LENGTH_SHORT).show()
 						}
 					}
 					.setNegativeButton("No") { _, _ ->
