@@ -163,7 +163,10 @@ object SavesManager {
 }
 
 @Serializable
-sealed class TimerData {abstract var name: String}
+sealed class TimerData {
+	abstract var name: String
+	var endSound: TimerEndSound = SoundManager.defaultTimerEndSound
+}
 
 @Serializable
 data class TimerElemData(

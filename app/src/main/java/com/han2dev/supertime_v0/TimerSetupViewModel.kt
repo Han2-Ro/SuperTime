@@ -34,6 +34,7 @@ class TimerSetupViewModel() : ViewModel() {
 					minutes = mutableStateOf(timeStr.substring(0, 2).toInt()),
 					seconds = mutableStateOf(timeStr.substring(3, 5).toInt()),
 					parent = parent,
+					endSound = timer.endSound,
 			)}
 			is TimerLoopData -> {
 				val loopNode = TimerLoopNode(
@@ -96,10 +97,14 @@ data class TimerElemNode(
 	var minutes: MutableState<Int?> = mutableStateOf(0),
 	var seconds: MutableState<Int?> = mutableStateOf(0),
 	override var parent: TimerLoopNode? = null,
+	var endSound: TimerEndSound = SoundManager.defaultTimerEndSound,
 ) : TimerNode() {
 	override val dropdownItems: List<DropdownItem> = listOf(
 		DropdownItem("Delete") {
 			parent?.childrenTimers?.remove(this) ?: throw NullPointerException("Parent is null")
+		},
+		DropdownItem("Set Sound") {
+			endSound = SoundManager.defaultTimerEndSound
 		},
 	)
 }

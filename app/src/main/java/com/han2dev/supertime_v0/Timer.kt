@@ -26,7 +26,6 @@ fun timerFromData(data: TimerData): Timer {
 abstract class Timer() {
     abstract val data: TimerData
     protected lateinit var parent: TimerParent
-    var endSound: SoundManager.TimerEndSound? = null
     abstract fun start(parent: TimerParent)
     abstract fun pause()
     abstract fun resume()
@@ -35,7 +34,7 @@ abstract class Timer() {
 interface TimerParent {
     fun next()
     fun update(time: Long, cyclesLeft: MutableList<Int>)
-    fun setSound(sound: SoundManager.TimerEndSound?)
+    fun setNextSound(sound: TimerEndSound)
 }
 
 class TimerLoop(override val data: TimerLoopData) : Timer(), TimerParent {
@@ -90,8 +89,8 @@ class TimerLoop(override val data: TimerLoopData) : Timer(), TimerParent {
     }
 
     //TODO: consider doing this in the actual setter method
-    override fun setSound(sound: SoundManager.TimerEndSound?) {
-        parent.setSound(sound) //TODO: set own sound if last in last cycle
+    override fun setNextSound(sound: TimerEndSound) {
+        parent.setNextSound(sound) //TODO: set own sound if last in last cycle
     }
 
 
@@ -116,7 +115,7 @@ class TimerElem(override val data: TimerElemData) : Timer() {
     override fun start(parent: TimerParent) {
         //set up
         this.parent = parent
-        parent.setSound(endSound)
+        parent.setNextSound(data.endSound)
         timeRemaining = data.durationMillis
 
         //start timer

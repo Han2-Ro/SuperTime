@@ -17,7 +17,7 @@ class TimerActivity : AppCompatActivity(), TimerParent {
     lateinit var btnCancel: Button
     lateinit var btnRestart: Button
 
-    var nextTimerEndSound: SoundManager.TimerEndSound? = null
+    var nextTimerEndSound: TimerEndSound? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,12 +97,8 @@ class TimerActivity : AppCompatActivity(), TimerParent {
         txtCycles.text = text
     }
 
-    override fun setSound(sound: SoundManager.TimerEndSound?) {
-        nextTimerEndSound = if(sound != null) {
-            SoundManager.loadSound(sound)
-        } else {
-            SoundManager.loadSound(SoundManager.sounds[0])
-        }
+    override fun setNextSound(sound: TimerEndSound) {
+        nextTimerEndSound = SoundManager.loadSound(sound)
     }
 
 

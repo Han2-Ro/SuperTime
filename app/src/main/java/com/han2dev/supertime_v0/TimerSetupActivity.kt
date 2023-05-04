@@ -32,14 +32,14 @@ class TimerSetupActivity : ComponentActivity() {
 
 		setContent {
 			SuperTime_v0Theme {
-				Base(this, viewModel)
+				MainScreen(this, viewModel)
 			}
 		}
 	}
 }
 
 @Composable
-fun Base(activity: Activity, viewModel: TimerSetupViewModel) {
+fun MainScreen(activity: Activity, viewModel: TimerSetupViewModel) {
 	val timer by viewModel.timerNode.observeAsState()
 	var isAddMenuVisable = rememberSaveable {
 		mutableStateOf(false)

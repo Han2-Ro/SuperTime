@@ -2,7 +2,16 @@ package com.han2dev.supertime_v0
 
 import android.media.AudioAttributes
 import android.media.SoundPool
+import kotlinx.serialization.Serializable
 
+
+@Serializable
+data class TimerEndSound(
+    val resId: Int,
+    val name: String,
+    val playAtMsLeft: Int,
+    var soundID: Int = -1
+)
 
 object SoundManager {
     // set up soundPool
@@ -19,10 +28,12 @@ object SoundManager {
     // loaded sounds: resId -> soundId
     private val loadedSounds: MutableMap<Int, Int> = mutableMapOf()
 
+
     val sounds: Array<TimerEndSound> = arrayOf(
         TimerEndSound(R.raw.sound1, "bing1",0),
         TimerEndSound(R.raw.halo_respawn_sound,"halo respawn" , 3290)
     )
+    val defaultTimerEndSound = sounds[0]
 
     fun loadSound(resId: Int): Int {
         if (!loadedSounds.containsKey(resId)) {
@@ -54,10 +65,4 @@ object SoundManager {
         return null
     }
 
-    data class TimerEndSound(
-        val resId: Int,
-        val name: String,
-        val playAtMsLeft: Int,
-        var soundID: Int = -1
-    )
 }
