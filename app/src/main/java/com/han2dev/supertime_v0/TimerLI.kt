@@ -137,6 +137,7 @@ fun MyDropdownMenu(
 fun TimeLI(timer: TimerElemNode) {
 	TimerListItem(
 		Color(0x70FFFFFF),
+		dropdownItems = timer.dropdownItems,
 		topRowContent = { modifier ->
 			Row (
 				verticalAlignment = Alignment.CenterVertically,
@@ -162,6 +163,7 @@ fun TimeLI(timer: TimerElemNode) {
 fun LoopLI(timerLoop: TimerLoopNode) {
 	TimerListItem(
 		Color(0x20000000),
+		dropdownItems = timerLoop.dropdownItems,
 		topRowContent = {modifier ->
 			Row (
 				verticalAlignment = Alignment.CenterVertically,

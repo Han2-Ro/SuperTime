@@ -24,7 +24,7 @@ class TimerSetupViewModel() : ViewModel() {
 		if (timer != null) _timerNode.value = timerToNode(timer)
 	}
 
-	private fun timerToNode(timer: TimerData): TimerNode {
+	private fun timerToNode(timer: TimerData, parent: TimerLoopNode? = null): TimerNode {
 		return when (timer) {
 			is TimerElemData -> {
 				//TODO: consider using a better way to get minutes and seconds
@@ -33,12 +33,17 @@ class TimerSetupViewModel() : ViewModel() {
 					name = timer.name,
 					minutes = mutableStateOf(timeStr.substring(0, 2).toInt()),
 					seconds = mutableStateOf(timeStr.substring(3, 5).toInt()),
+					parent = parent,
 			)}
-			is TimerLoopData -> TimerLoopNode(
-				name = timer.name,
-				childrenTimers = timer.childrenTimers.map { timerToNode(it) }.toMutableStateList(),
-				repeats = mutableStateOf(timer.repeats),
-			)
+			is TimerLoopData -> {
+				val loopNode = TimerLoopNode(
+					name = timer.name,
+					repeats = mutableStateOf(timer.repeats),
+					parent = parent,
+				)
+				loopNode.childrenTimers = timer.childrenTimers.map { timerToNode(it, loopNode) }.toMutableStateList()
+				loopNode
+			}
 		}
 	}
 
@@ -82,19 +87,38 @@ class TimerSetupViewModel() : ViewModel() {
 
 sealed class TimerNode {
 	abstract var name: String
-	val dropdownItems = listOf(
-		DropdownItem("Delete") {}
-	)
+	abstract val dropdownItems: List<DropdownItem>
+	abstract var parent: TimerLoopNode?
 }
 
 data class TimerElemNode(
 	override var name: String = "",
 	var minutes: MutableState<Int?> = mutableStateOf(0),
 	var seconds: MutableState<Int?> = mutableStateOf(0),
-) : TimerNode()
+	override var parent: TimerLoopNode? = null,
+) : TimerNode() {
+	override val dropdownItems: List<DropdownItem> = listOf(
+		DropdownItem("Delete") {
+			parent?.childrenTimers?.remove(this) ?: throw NullPointerException("Parent is null")
+		},
+	)
+}
 
 data class TimerLoopNode(
 	override var name: String = "",
-	var childrenTimers: SnapshotStateList<TimerNode> = mutableStateListOf<TimerNode>(),
+	var childrenTimers: SnapshotStateList<TimerNode> = mutableStateListOf(TimerElemNode()),
 	var repeats: MutableState<Int?> = mutableStateOf(1),
-) : TimerNode()
+	override var parent: TimerLoopNode? = null,
+) : TimerNode() {
+	override val dropdownItems: List<DropdownItem> = listOf(
+		DropdownItem("Delete") {
+			parent?.childrenTimers?.remove(this) ?: throw NullPointerException("Parent is null")
+	   	},
+		DropdownItem("Add Timer") {
+	  		childrenTimers.add(TimerElemNode())
+		},
+		DropdownItem("Add Loop") {
+	 		childrenTimers.add(TimerLoopNode())
+		},
+	)
+}
