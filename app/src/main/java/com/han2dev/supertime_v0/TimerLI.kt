@@ -185,10 +185,11 @@ fun LoopLI(timerLoop: TimerLoopNode) {
 
 @Composable
 fun TimerList(timers: List<TimerNode>) {
-	LazyColumn(
+	//Normally, this would be a LazyColumn, but I'm not sure how to make it work with a LazyColumn
+	Column(
 		modifier = Modifier.wrapContentHeight()
 	) {
-		items(timers)
+		timers.forEach()
 		{ timer ->
 			if (timer is TimerElemNode) {
 				println("adding timeLI")

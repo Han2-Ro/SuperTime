@@ -25,7 +25,16 @@ class TimerSetupTest {
 		val timer = TimerLoopData(
 			name = "test",
 			childrenTimers = listOf(
-				TimerElemData(),
+				TimerLoopData(
+					childrenTimers = listOf(
+						TimerElemData(),
+						TimerLoopData(
+							childrenTimers = listOf(
+								TimerElemData(),
+							)
+						),
+					)
+				),
 				TimerElemData()))
 		SavesManager.save(context, timer)
 	}
@@ -44,6 +53,24 @@ class TimerSetupTest {
 		return intent
 	}
 
+	@Test
+	fun allTimerElemsExist() {
+		scenario = ActivityScenario.launch(
+			createActivityIntent()
+		)
+
+		rule.onAllNodesWithText(" min  ").assertCountEquals(3)
+		rule.onAllNodesWithText(" sec").assertCountEquals(3)
+	}
+
+	@Test
+	fun allTimerLoopsExist() {
+		scenario = ActivityScenario.launch(
+			createActivityIntent()
+		)
+
+		rule.onAllNodesWithTag("repeatsField").assertCountEquals(2)
+	}
 
 	@Test
 	fun test_timeTextFieldInput() {
@@ -89,7 +116,9 @@ class TimerSetupTest {
 
 	@Test
 	fun editAndSaveTimer_loadTimer_isEqual() {
-		val timer1 = TimerLoopData(name = "test", childrenTimers = listOf(TimerElemData()))
+		val timer1 = TimerLoopData(
+			name = "test",
+			childrenTimers = listOf(TimerLoopData(childrenTimers = listOf(TimerElemData()))))
 		SavesManager.save(context, timer1)
 
 		scenario = ActivityScenario.launch(
@@ -105,9 +134,7 @@ class TimerSetupTest {
 
 		rule.onNodeWithTag("saveButton").performClick()
 
-		Thread.sleep(500)
-
-		val timer2 = SavesManager.load(context, "test") as TimerLoopData
+		val timer2 = (SavesManager.load(context, "test") as TimerLoopData).childrenTimers[0] as TimerLoopData
 		assert(timer2.childrenTimers.size == 1)
 		assert(timer2.repeats == 2)
 		assert(timer2.childrenTimers[0] is TimerElemData)
