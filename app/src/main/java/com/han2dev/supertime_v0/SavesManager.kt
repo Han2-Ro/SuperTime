@@ -165,18 +165,20 @@ object SavesManager {
 @Serializable
 sealed class TimerData {
 	abstract var name: String
-	var endSound: TimerEndSound = SoundManager.defaultTimerEndSound
+	abstract var endSound: TimerEndSound
 }
 
 @Serializable
 data class TimerElemData(
 	override var name: String = "untitled",
+	override var endSound: TimerEndSound = SoundManager.defaultTimerEndSound,
 	var durationMillis: Long = 0,
 ) : TimerData()
 
 @Serializable
 data class TimerLoopData(
 	override var name: String = "untitled",
+	override var endSound: TimerEndSound = SoundManager.defaultTimerEndSound,
 	var childrenTimers: List<TimerData> = listOf(),
 	var repeats: Int = 1,
 ) : TimerData()

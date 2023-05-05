@@ -15,6 +15,8 @@ import androidx.lifecycle.ViewModel
 class TimerSetupViewModel() : ViewModel() {
 	private val _timerNode: MutableLiveData<TimerNode?> = MutableLiveData()
 	val timerNode: LiveData<TimerNode?> = _timerNode
+	var showSelectSoundDialog: (onSoundSelected: (TimerEndSound) -> Unit) -> Unit =
+		{throw IllegalStateException("showSelectSoundDialog() is not defined.")}
 
 	fun load(intent: Intent, context: Context) {
 		val timerId = intent.getStringExtra("timer_id")
@@ -31,16 +33,19 @@ class TimerSetupViewModel() : ViewModel() {
 				val timeStr = formatTime(timer.durationMillis)
 				TimerElemNode(
 					name = timer.name,
+					parent = parent,
+					viewModel = this,
+					endSound = timer.endSound,
 					minutes = mutableStateOf(timeStr.substring(0, 2).toInt()),
 					seconds = mutableStateOf(timeStr.substring(3, 5).toInt()),
-					parent = parent,
-					endSound = timer.endSound,
 			)}
 			is TimerLoopData -> {
 				val loopNode = TimerLoopNode(
 					name = timer.name,
-					repeats = mutableStateOf(timer.repeats),
 					parent = parent,
+					viewModel = this,
+					endSound = timer.endSound,
+					repeats = mutableStateOf(timer.repeats),
 				)
 				loopNode.childrenTimers = timer.childrenTimers.map { timerToNode(it, loopNode) }.toMutableStateList()
 				loopNode
@@ -49,20 +54,22 @@ class TimerSetupViewModel() : ViewModel() {
 	}
 
 
-	private fun nodeToTimerData(TimerNode: TimerNode): TimerData {
-		return when (TimerNode) {
+	private fun nodeToTimerData(timerNode: TimerNode): TimerData {
+		return when (timerNode) {
 			is TimerElemNode -> {
 				TimerElemData(
-					name = TimerNode.name,
+					name = timerNode.name,
+					endSound = timerNode.endSound,
 					//TODO: remove non-null assertions
-					durationMillis = TimerNode.minutes.value!! * 60 * 1000L + TimerNode.seconds.value!! * 1000L,
+					durationMillis = timerNode.minutes.value!! * 60 * 1000L + timerNode.seconds.value!! * 1000L,
 				)
 			}
 			is TimerLoopNode -> {
 				TimerLoopData(
-					name = TimerNode.name,
-					childrenTimers = TimerNode.childrenTimers.map { nodeToTimerData(it) },
-					repeats = TimerNode.repeats.value!!,
+					name = timerNode.name,
+					endSound = timerNode.endSound,
+					childrenTimers = timerNode.childrenTimers.map { nodeToTimerData(it) },
+					repeats = timerNode.repeats.value!!,
 				)
 			}
 		}
@@ -90,40 +97,53 @@ sealed class TimerNode {
 	abstract var name: String
 	abstract val dropdownItems: List<DropdownItem>
 	abstract var parent: TimerLoopNode?
+	abstract val viewModel: TimerSetupViewModel
+	abstract val endSound: TimerEndSound
 }
 
 data class TimerElemNode(
 	override var name: String = "",
+	override var parent: TimerLoopNode? = null,
+	override val viewModel: TimerSetupViewModel,
+	override var endSound: TimerEndSound = SoundManager.defaultTimerEndSound,
 	var minutes: MutableState<Int?> = mutableStateOf(0),
 	var seconds: MutableState<Int?> = mutableStateOf(0),
-	override var parent: TimerLoopNode? = null,
-	var endSound: TimerEndSound = SoundManager.defaultTimerEndSound,
 ) : TimerNode() {
 	override val dropdownItems: List<DropdownItem> = listOf(
 		DropdownItem("Delete") {
 			parent?.childrenTimers?.remove(this) ?: throw NullPointerException("Parent is null")
 		},
 		DropdownItem("Set Sound") {
-			endSound = SoundManager.defaultTimerEndSound
+			viewModel.showSelectSoundDialog(){
+				endSound = it
+			}
 		},
 	)
 }
 
 data class TimerLoopNode(
 	override var name: String = "",
-	var childrenTimers: SnapshotStateList<TimerNode> = mutableStateListOf(TimerElemNode()),
-	var repeats: MutableState<Int?> = mutableStateOf(1),
 	override var parent: TimerLoopNode? = null,
+	override val viewModel: TimerSetupViewModel,
+	override var endSound: TimerEndSound = SoundManager.defaultTimerEndSound,
+	var childrenTimers: SnapshotStateList<TimerNode> = mutableStateListOf(TimerElemNode(viewModel = viewModel)),
+	var repeats: MutableState<Int?> = mutableStateOf(1),
 ) : TimerNode() {
 	override val dropdownItems: List<DropdownItem> = listOf(
 		DropdownItem("Delete") {
 			parent?.childrenTimers?.remove(this) ?: throw NullPointerException("Parent is null")
 	   	},
 		DropdownItem("Add Timer") {
-	  		childrenTimers.add(TimerElemNode())
+	  		childrenTimers.add(TimerElemNode(
+				parent = this,
+				viewModel = viewModel,
+			  ))
 		},
 		DropdownItem("Add Loop") {
-	 		childrenTimers.add(TimerLoopNode())
+	 		childrenTimers.add(TimerLoopNode(
+				parent = this,
+				viewModel = viewModel,
+			 ))
 		},
 	)
 }

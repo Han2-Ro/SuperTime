@@ -56,7 +56,7 @@ abstract class TimerViewHolder(itemView: View, parentAdapter: TimesRecViewAdapte
 
 						builder.setTitle("Select Sound")
 							.setItems(SoundManager.sounds.map { it.name }.toTypedArray()) { _, which ->
-								parentAdapter.timerLoop.childrenTimers[adapterPosition].endSound = SoundManager.sounds[which]
+								parentAdapter.timerLoop.childrenTimers[adapterPosition].data.endSound = SoundManager.sounds[which]
 								Toast.makeText(itemView.context, "set sound: ${SoundManager.sounds[which].name}", Toast.LENGTH_SHORT).show()
 							}
 

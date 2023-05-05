@@ -80,7 +80,7 @@ class TimerFragment : Fragment(), NewTimerDialog.NewTimerDialogListener  {
     }
 
     override fun addNewTimer(name: String) {
-        val timer = TimerLoopData(name, listOf(TimerElemData(durationMillis = 10000)), 1)
+        val timer = TimerLoopData(name, childrenTimers =  listOf(TimerElemData(durationMillis = 10000)), repeats =  1)
 
         if (SavesManager.save(requireActivity().applicationContext, timer, false)) {
             adapter.add(name)

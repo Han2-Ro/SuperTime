@@ -1,7 +1,9 @@
 package com.han2dev.supertime_v0
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -28,6 +30,20 @@ class TimerSetupActivity : ComponentActivity() {
 		val viewModel = ViewModelProvider(this)[TimerSetupViewModel::class.java]
 		viewModel.load(intent, this.applicationContext)
 
+		viewModel.showSelectSoundDialog =
+		{onSoundSelected ->
+			val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+
+			builder.setTitle("Select Sound")
+				.setItems(SoundManager.sounds.map { it.name }.toTypedArray()) { _, which ->
+					onSoundSelected(SoundManager.sounds[which])
+					Toast.makeText(this, "set sound: ${SoundManager.sounds[which].name}", Toast.LENGTH_SHORT).show()
+				}
+
+			val dialog: AlertDialog = builder.create()
+			dialog.show()
+		}
+
 		title = "timer.value?.name"
 
 		setContent {
@@ -41,7 +57,7 @@ class TimerSetupActivity : ComponentActivity() {
 @Composable
 fun MainScreen(activity: Activity, viewModel: TimerSetupViewModel) {
 	val timer by viewModel.timerNode.observeAsState()
-	var isAddMenuVisable = rememberSaveable {
+	val isAddMenuVisable = rememberSaveable {
 		mutableStateOf(false)
 	}
 
@@ -107,7 +123,7 @@ fun Root(contentPadding: PaddingValues, timer: TimerNode?, activity: Activity) {
 @Preview(showBackground = false)
 @Composable
 fun DefaultPreview() {
-	val timer = remember {
+	/*val timer = remember {
 		TimerLoopNode(
 			name = "test",
 			childrenTimers = mutableStateListOf(
@@ -124,5 +140,5 @@ fun DefaultPreview() {
 		) {
 			LoopLI(timer)
 		}
-	}
+	}*/
 }
