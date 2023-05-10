@@ -41,7 +41,7 @@ class TimerSetupTest {
 
 	@After
 	fun tearDown() {
-		SavesManager.deleteAll(context)
+		SavesManager.deleteAllTimers(context)
 		if (::scenario.isInitialized) scenario.close()
 	}
 
@@ -134,7 +134,7 @@ class TimerSetupTest {
 
 		rule.onNodeWithTag("saveButton").performClick()
 
-		val timer2 = (SavesManager.load(context, "test") as TimerLoopData).childrenTimers[0] as TimerLoopData
+		val timer2 = (SavesManager.load(context, "test") as TimerLoopData?)!!.childrenTimers[0] as TimerLoopData
 		assert(timer2.childrenTimers.size == 1)
 		assert(timer2.repeats == 2)
 		assert(timer2.childrenTimers[0] is TimerElemData)

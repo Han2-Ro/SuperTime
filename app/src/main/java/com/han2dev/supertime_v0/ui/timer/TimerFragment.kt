@@ -65,7 +65,7 @@ class TimerFragment : Fragment(), NewTimerDialog.NewTimerDialogListener  {
                     R.id.optAddTimer -> NewTimerDialog(this@TimerFragment, SavesManager.convertToAvailableFilename(requireContext(),"untitled")).show(parentFragmentManager, "NewTimerDialog")
 
                     R.id.optDeleteAll -> {
-                        SavesManager.deleteAll(requireActivity().applicationContext)
+                        SavesManager.deleteAllTimers(requireActivity().applicationContext)
                         adapter.refresh()
                     }
                 }

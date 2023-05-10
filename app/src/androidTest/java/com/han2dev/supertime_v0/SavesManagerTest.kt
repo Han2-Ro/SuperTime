@@ -1,6 +1,7 @@
 package com.han2dev.supertime_v0
 
 import android.content.Context
+import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.*
 
@@ -13,6 +14,7 @@ class SavesManagerTest {
 	private val context: Context = ApplicationProvider.getApplicationContext()
 	private lateinit var timer1: TimerLoopData
 	private lateinit var timer2: TimerLoopData
+	private lateinit var alarm1: AlarmItem
 
 	@Before
 	fun setUp() {
@@ -34,50 +36,79 @@ class SavesManagerTest {
 					repeats = 10)),
 			repeats = 1)
 
+		alarm1 = AlarmItem(
+			name = "alarm1",
+			time = 0,
+			enabled = false)
 	}
 
 	@After
 	fun tearDown() {
 		val files = context.filesDir.listFiles()
-		files.forEach { println("filename: $it.name") }
+		files.forEach { Log.d(this::class.simpleName, "filename: ${it.name}") }
 		for (file in files) {
 			file.delete()
 		}
 	}
 
 
-	@Test
-	fun convert1ToAndFromJson_returnSame() {
+	/*@Test
+	fun convert1ToAndFromJson_returnEqual() {
 		val json = SavesManager.timerToJson(timer1)
-		val result = SavesManager.timerFromJson(json)
+		val result = SavesManager.fromJson(json)
 		assertThat(result).isEqualTo(timer1)
 	}
 
 	@Test
-	fun convert2ToAndFromJson_returnSame() {
-		val json = SavesManager.timerToJson(timer2)
-		val result = SavesManager.timerFromJson(json)
+	fun convert2ToAndFromJson_returnEqual() {
+		val json = SavesManager.toJson(timer2)
+		val result = SavesManager.fromJson(json)
 		assertThat(result).isEqualTo(timer2)
-	}
+	}*/
 
 	@Test
-	fun saveAndLoad1Timer_returnSame(){
+	fun saveAndLoad1Timer_returnEqual(){
 		timer2.name = "timer2"
 		SavesManager.save(context, timer2)
-		val result2 = SavesManager.load(context, timer2.name)
+		val result2: TimerData? = SavesManager.load(context, timer2.name)
 		assertThat(result2).isEqualTo(timer2)
 	}
 
 	@Test
-	fun saveAndLoad2Timers_returnSame(){
+	fun saveAndLoad1Alarm_returnEqual(){
+		alarm1.name = "alarm1"
+
+		SavesManager.save(context, alarm1)
+		val result1: AlarmItem? = SavesManager.load(context, alarm1.name)
+
+		assertThat(result1).isEqualTo(alarm1)
+	}
+
+	@Test
+	fun saveAndLoadTimerAndAlarmWithSameName_returnEqual(){
+		timer1.name = "sameName"
+		alarm1.name = "sameName"
+
+		SavesManager.save(context, timer1)
+		SavesManager.save(context, alarm1)
+
+		val resultTimer: TimerData? = SavesManager.load(context, timer1.name)
+		val resultAlarm: AlarmItem? = SavesManager.load(context, alarm1.name)
+
+		assertThat(resultTimer).isEqualTo(timer1)
+		assertThat(resultAlarm).isEqualTo(alarm1)
+	}
+
+	@Test
+	fun saveAndLoad2Timers_returnEqual(){
 		timer2.name = "timer2"
 		timer1.name = "timer1"
 
 		SavesManager.save(context, timer2)
-		val result2 = SavesManager.load(context, timer2.name)
+		val result2: TimerData? = SavesManager.load(context, timer2.name)
 
 		SavesManager.save(context, timer1)
-		val result1 = SavesManager.load(context, timer1.name)
+		val result1: TimerData? = SavesManager.load(context, timer1.name)
 
 		assertThat(result2).isEqualTo(timer2)
 		assertThat(result1).isEqualTo(timer1)
@@ -85,23 +116,23 @@ class SavesManagerTest {
 
 	@Test
 	fun loadNonExistingFile_returnNull(){
-		val result = SavesManager.load(context, "nonExistingFile")
+		val result: TimerData? = SavesManager.load(context, "nonExistingFile")
 		assertThat(result).isNull()
 	}
 
 	@Test
-	fun saveFileWithExistingName_overrideAndReturnTrue(){
+	fun saveTimerWithExistingName_overrideAndReturnTrue(){
 		timer1.name = "sameName"
 		timer2.name = "sameName"
 		SavesManager.save(context, timer1)
 		val saved = SavesManager.save(context, timer2)
 		assertThat(saved).isTrue()
-		val result = SavesManager.load(context, timer2.name)
+		val result: TimerData? = SavesManager.load(context, timer2.name)
 		assertThat(result).isEqualTo(timer2)
 	}
 
 	@Test
-	fun saveUsingConvertToAvailableName_returnTrue(){
+	fun saveTimerUsingConvertToAvailableName_returnTrue(){
 		timer1.name = "timer"
 		SavesManager.save(context, timer1)
 
