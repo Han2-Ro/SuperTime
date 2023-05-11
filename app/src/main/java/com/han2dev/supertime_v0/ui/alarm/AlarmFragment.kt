@@ -85,7 +85,7 @@ class AlarmFragment : Fragment(), NewTimerDialog.NewTimerDialogListener {
         _binding = null
     }
 
-    //actually new Alarm
+    //TODO: actually new Alarm
     override fun addNewTimer(name: String) {
         val timer = TimerLoopData(name, childrenTimers =  listOf(TimerElemData(durationMillis = 10000)), repeats =  1)
 

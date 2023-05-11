@@ -51,26 +51,11 @@ class SavesManagerTest {
 		}
 	}
 
-
-	/*@Test
-	fun convert1ToAndFromJson_returnEqual() {
-		val json = SavesManager.timerToJson(timer1)
-		val result = SavesManager.fromJson(json)
-		assertThat(result).isEqualTo(timer1)
-	}
-
-	@Test
-	fun convert2ToAndFromJson_returnEqual() {
-		val json = SavesManager.toJson(timer2)
-		val result = SavesManager.fromJson(json)
-		assertThat(result).isEqualTo(timer2)
-	}*/
-
 	@Test
 	fun saveAndLoad1Timer_returnEqual(){
 		timer2.name = "timer2"
 		SavesManager.save(context, timer2)
-		val result2: TimerData? = SavesManager.load(context, timer2.name)
+		val result2: TimerData? = SavesManager.loadTimer(context, timer2.name)
 		assertThat(result2).isEqualTo(timer2)
 	}
 
@@ -79,7 +64,7 @@ class SavesManagerTest {
 		alarm1.name = "alarm1"
 
 		SavesManager.save(context, alarm1)
-		val result1: AlarmItem? = SavesManager.load(context, alarm1.name)
+		val result1: AlarmItem? = SavesManager.loadAlarm(context, alarm1.name)
 
 		assertThat(result1).isEqualTo(alarm1)
 	}
@@ -92,8 +77,8 @@ class SavesManagerTest {
 		SavesManager.save(context, timer1)
 		SavesManager.save(context, alarm1)
 
-		val resultTimer: TimerData? = SavesManager.load(context, timer1.name)
-		val resultAlarm: AlarmItem? = SavesManager.load(context, alarm1.name)
+		val resultTimer: TimerData? = SavesManager.loadTimer(context, timer1.name)
+		val resultAlarm: AlarmItem? = SavesManager.loadAlarm(context, alarm1.name)
 
 		assertThat(resultTimer).isEqualTo(timer1)
 		assertThat(resultAlarm).isEqualTo(alarm1)
@@ -105,10 +90,10 @@ class SavesManagerTest {
 		timer1.name = "timer1"
 
 		SavesManager.save(context, timer2)
-		val result2: TimerData? = SavesManager.load(context, timer2.name)
+		val result2: TimerData? = SavesManager.loadTimer(context, timer2.name)
 
 		SavesManager.save(context, timer1)
-		val result1: TimerData? = SavesManager.load(context, timer1.name)
+		val result1: TimerData? = SavesManager.loadTimer(context, timer1.name)
 
 		assertThat(result2).isEqualTo(timer2)
 		assertThat(result1).isEqualTo(timer1)
@@ -116,7 +101,7 @@ class SavesManagerTest {
 
 	@Test
 	fun loadNonExistingFile_returnNull(){
-		val result: TimerData? = SavesManager.load(context, "nonExistingFile")
+		val result: TimerData? = SavesManager.loadTimer(context, "nonExistingFile")
 		assertThat(result).isNull()
 	}
 
@@ -127,7 +112,7 @@ class SavesManagerTest {
 		SavesManager.save(context, timer1)
 		val saved = SavesManager.save(context, timer2)
 		assertThat(saved).isTrue()
-		val result: TimerData? = SavesManager.load(context, timer2.name)
+		val result: TimerData? = SavesManager.loadTimer(context, timer2.name)
 		assertThat(result).isEqualTo(timer2)
 	}
 

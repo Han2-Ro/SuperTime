@@ -22,7 +22,7 @@ class TimerSetupViewModel() : ViewModel() {
 		val timerId = intent.getStringExtra("timer_id")
 			?: throw NullPointerException("Found no \"timer_id\": String in intent extra.")
 		println("name from intent: $timerId")
-		val timer: TimerData? = SavesManager.load(context, timerId)
+		val timer: TimerData? = SavesManager.loadTimer(context, timerId)
 		if (timer != null) _timerNode.value = timerToNode(timer)
 	}
 

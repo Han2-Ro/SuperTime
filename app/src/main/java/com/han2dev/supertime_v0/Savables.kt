@@ -5,8 +5,18 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface Savable {
 	var name: String
+	val fileExtension: String
+		get() = ".${this::class.simpleName}"
 }
 
+@Serializable
+data class AlarmItem(
+	override var name: String,
+	//@Contextual
+	//var time: LocalDateTime,
+	var time: Long,
+	var enabled: Boolean = false,
+): Savable
 
 @Serializable
 sealed class TimerData: Savable {
@@ -28,12 +38,3 @@ data class TimerLoopData(
 	var childrenTimers: List<TimerData> = listOf(),
 	var repeats: Int = 1,
 ) : TimerData()
-
-@Serializable
-data class AlarmItem(
-	override var name: String,
-	//@Contextual
-	//var time: LocalDateTime,
-	var time: Long,
-	var enabled: Boolean = false,
-): Savable
