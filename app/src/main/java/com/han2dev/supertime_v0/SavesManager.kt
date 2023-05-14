@@ -21,11 +21,33 @@ object SavesManager {
 	 * @param oldName old name of the timer
 	 * @param newName new name of the timer
 	 */
-	fun rename(context: Context, oldName: String, newName: String): Boolean {
-		val timer: TimerData = loadTimer(context, oldName) ?: return false //TODO: for alarms
-		timer.name = newName
-		if (save(context, timer, false)) {
-			delete(context, oldName)
+	fun renameTimer(
+		context: Context,
+		oldName: String,
+		newName: String
+	): Boolean {
+		val timer: TimerData = loadTimer(context, oldName) ?: return false
+		return rename(context, timer, newName, oldName)
+	}
+
+	fun renameAlarm(
+		context: Context,
+		oldName: String,
+		newName: String
+	): Boolean {
+		val alarm: AlarmItem = loadAlarm(context, oldName) ?: return false
+		return rename(context, alarm, newName, oldName)
+	}
+
+	private fun rename(
+		context: Context,
+		item: Savable,
+		newName: String,
+		oldName: String
+	): Boolean {
+		item.name = newName
+		if (save(context, item, false)) {
+			deleteTimer(context, oldName)
 			return true
 		}
 		return false
@@ -47,28 +69,43 @@ object SavesManager {
 	 * @param name name of the file to check
 	 * @return true if filename is available
 	 */
-	private fun checkFilenameAvailability(context: Context, name: String): Boolean {
-		val fileName = addExtension(name, SaveType.TIMER.fileExtension) //TODO: for alarms
-
-		//check if timer with this filename already exists
-		for (file in allTimerFiles(context)) {
+	private fun checkFilenameAvailability(context: Context, fileName: String): Boolean {
+		//check if file with this filename already exists
+		val files = context.filesDir.listFiles()
+		for (file in files) {
 			if (file.name == fileName) {
-				Log.i(this::class.simpleName, "timer with name $name already exists")
+				Log.i(this::class.simpleName, "file with name $fileName already exists")
 				return false
 			}
 		}
 		return true
 	}
 
-	fun convertToAvailableFilename(context: Context, name: String): String {
-		if (checkFilenameAvailability(context, name)) return name
+	fun toAvailableTimerName(context: Context, name: String): String {
+		val fileName = addExtension(name, SaveType.TIMER.fileExtension)
+		return toAvailableFilename(context, fileName)
+	}
 
-		for (i in 2..1000) {
-			val fileName = "$name ($i)"
-			if (checkFilenameAvailability(context, fileName)) return fileName
+	fun toAvailableAlarmName(context: Context, name: String): String {
+		val fileName = addExtension(name, SaveType.ALARM.fileExtension)
+		return toAvailableFilename(context, fileName)
+	}
+
+	private fun toAvailableFilename(
+		context: Context,
+		fileName: String
+	): String {
+		if (checkFilenameAvailability(context, fileName)) return fileName
+		val index = fileName.lastIndexOf(".")
+		val name = fileName.substring(0, index)
+		Log.d(this::class.simpleName, "name: $name")
+		val extension = fileName.substring(index)
+		Log.d(this::class.simpleName, "extension: $extension")
+		for (i in 2..10000) {
+			val newFileName = "$name($i)$extension"
+			if (checkFilenameAvailability(context, newFileName)) return newFileName
 		}
-
-		return addExtension("Why do you have over 1000 timers with the same name?!", SaveType.TIMER.fileExtension) //TODO: for alarms
+		throw Exception("Couldn't find available filename. Too many files with the same name?")
 	}
 
 
@@ -82,32 +119,43 @@ object SavesManager {
 		return timers
 	}
 
-	fun delete(context: Context, name: String): Boolean {
-		val fileName = addExtension(name, SaveType.TIMER.fileExtension) //TODO: for alarms
+	fun deleteTimer(context: Context, name: String): Boolean {
+		val fileName = addExtension(name, SaveType.TIMER.fileExtension)
+		return context.deleteFile(fileName)
+	}
+
+	fun deleteAlarm(context: Context, name: String): Boolean {
+		val fileName = addExtension(name, SaveType.ALARM.fileExtension)
 		return context.deleteFile(fileName)
 	}
 
 	/**
 	 * Deletes all saved timers
 	 */
-	fun deleteAllTimers(context: Context) {
+	fun deleteAllSavable(context: Context) {
+		val files = context.filesDir.listFiles()
+		TODO("not finished")
 		for (file in allTimerFiles(context)) {
-			delete(context, file.name)
+			deleteTimer(context, file.name)
 		}
 		Log.i(this::class.simpleName, "All Deleted")
 	}
+
 
 	/**
 	 * Saves timer to file
 	 * @param item timer to save. Its name + TIMER_FILE_EXTENSION will be the file name.
 	 * @return true if saved successfully
 	 */
-	fun save(context: Context, item: Savable, override: Boolean = true) : Boolean {
+	fun save(
+		context: Context,
+		item: Savable,
+		override: Boolean = true
+	) : Boolean {
 		val json = toJson(item)
-		//TODO: consider using dictionary to look up extension
 		val fileName = when (item) {
 			is TimerData -> addExtension(item.name, SaveType.TIMER.fileExtension)
-		is AlarmItem -> addExtension(item.name, SaveType.ALARM.fileExtension)
+			is AlarmItem -> addExtension(item.name, SaveType.ALARM.fileExtension)
 		}
 		return saveJson(context, json, fileName, override)
 
@@ -131,7 +179,12 @@ object SavesManager {
 		return fromJson(json) as T?
 	}
 
-	private fun saveJson(context: Context, json: String, fileName: String, override: Boolean = true) : Boolean {
+	private fun saveJson(
+		context: Context,
+		json: String,
+		fileName: String,
+		override: Boolean = true
+	) : Boolean {
 		if (!override && !checkFilenameAvailability(context, fileName)) {
 			Log.e(this::class.simpleName, "Could not save because '$fileName' already exists and override is false")
 			return false

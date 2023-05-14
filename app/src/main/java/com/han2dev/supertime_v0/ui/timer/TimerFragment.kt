@@ -62,10 +62,10 @@ class TimerFragment : Fragment(), NewTimerDialog.NewTimerDialogListener  {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 // Handle the menu selection
                 when (menuItem.itemId) {
-                    R.id.optAddTimer -> NewTimerDialog(this@TimerFragment, SavesManager.convertToAvailableFilename(requireContext(),"untitled")).show(parentFragmentManager, "NewTimerDialog")
+                    R.id.optAddTimer -> NewTimerDialog(this@TimerFragment, SavesManager.toAvailableTimerName(requireContext(),"untitled")).show(parentFragmentManager, "NewTimerDialog")
 
                     R.id.optDeleteAll -> {
-                        SavesManager.deleteAllTimers(requireActivity().applicationContext)
+                        SavesManager.deleteAllSavable(requireActivity().applicationContext)
                         adapter.refresh()
                     }
                 }

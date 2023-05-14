@@ -41,7 +41,7 @@ class TimerSetupTest {
 
 	@After
 	fun tearDown() {
-		SavesManager.deleteAllTimers(context)
+		SavesManager.deleteAllSavable(context)
 		if (::scenario.isInitialized) scenario.close()
 	}
 

@@ -38,7 +38,7 @@ class TimerSelectRecViewAdapter(private val activity: FragmentActivity) : Recycl
         }
 
         holder.btnDelete.setOnClickListener {
-            SavesManager.delete(activity.applicationContext, titles[position])
+            SavesManager.deleteTimer(activity.applicationContext, titles[position])
             titles.removeAt(position)
             notifyItemRemoved(position)
         }
