@@ -1,11 +1,10 @@
-package com.han2dev.supertime_v0
+package com.han2dev.supertime_v0.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -27,6 +26,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import com.han2dev.supertime_v0.TimerElemNode
+import com.han2dev.supertime_v0.TimerLoopNode
+import com.han2dev.supertime_v0.TimerNode
 
 
 data class DropdownItem(
@@ -41,7 +43,7 @@ fun TimerListItem(
 	topRowContent: @Composable (Modifier) -> Unit,
 	extraContent: @Composable () -> Unit = {},
 ) {
-	var isContextMenuVisible = rememberSaveable {
+	val isContextMenuVisible = rememberSaveable {
 		mutableStateOf(false)
 	}
 
@@ -67,7 +69,7 @@ fun TimerListItem(
 
 			Icon(
 				imageVector = Icons.Default.Settings,
-				contentDescription = null,
+				contentDescription = "Settings",
 				modifier = Modifier.clickable { isContextMenuVisible.value = true }
 			)
 

@@ -18,8 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
+import com.han2dev.supertime_v0.ui.DropdownItem
+import com.han2dev.supertime_v0.ui.MyDropdownMenu
+import com.han2dev.supertime_v0.ui.TimeLI
+import com.han2dev.supertime_v0.ui.TimerList
 import com.han2dev.supertime_v0.ui.theme.SuperTime_v0Theme
 
 class TimerSetupActivity : ComponentActivity() {
