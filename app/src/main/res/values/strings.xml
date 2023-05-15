@@ -1,7 +1,8 @@
 <resources>
-	<string name="app_name">Super Time_v0</string>
-	<string name="stop">Stop</string>
-	<string name="start">Start</string>
-	<string name="title_activity_compose_test">ComposeTest</string>
-	<string name="title_activity_new_timer_setup">NewTimerSetupActivity</string>
+    <string name="app_name">Super Time_v0</string>
+    <string name="stop">Stop</string>
+    <string name="start">Start</string>
+    <string name="title_activity_compose_test">ComposeTest</string>
+    <string name="title_activity_new_timer_setup">NewTimerSetupActivity</string>
+    <string name="title_activity_alarm_edit">AlarmEditActivity</string>
 </resources>
