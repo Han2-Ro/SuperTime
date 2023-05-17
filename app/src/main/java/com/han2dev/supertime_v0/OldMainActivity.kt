@@ -10,7 +10,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.han2dev.supertime_v0.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class OldMainActivity : AppCompatActivity() {
 
     companion object {
         lateinit var context: Context

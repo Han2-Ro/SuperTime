@@ -4,4 +4,5 @@
 	<string name="start">Start</string>
 	<string name="title_activity_compose_test">ComposeTest</string>
 	<string name="title_activity_new_timer_setup">NewTimerSetupActivity</string>
+	<string name="title_activity_main">MainActivity</string>
 </resources>

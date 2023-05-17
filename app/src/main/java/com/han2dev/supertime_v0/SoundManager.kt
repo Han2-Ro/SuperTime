@@ -37,7 +37,7 @@ object SoundManager {
 
     fun loadSound(resId: Int): Int {
         if (!loadedSounds.containsKey(resId)) {
-            loadedSounds[resId] = soundPool.load(MainActivity.context, resId, 1)
+            loadedSounds[resId] = soundPool.load(OldMainActivity.context, resId, 1)
             println("loaded sound: $resId")
         }
         return loadedSounds[resId]!!
