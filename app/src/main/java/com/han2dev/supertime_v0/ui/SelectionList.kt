@@ -24,24 +24,29 @@ import androidx.compose.ui.unit.dp
 import com.han2dev.supertime_v0.ui.theme.SuperTime_v0Theme
 
 @Composable
-fun SelectionList() {
+private fun SelectionList(titles: List<String>) {
 
-	LazyColumn() {
-		items(listOf<String>("alarm1", "alarm2", "alarm3")) {
+	LazyColumn(
+		Modifier.background(Color.DarkGray)
+	) {
+		items(titles) {
 			ListItem(it)
 		}
 	}
 }
 
 @Composable
-fun ListItem(title: String) {
+private fun ListItem(title: String) {
 	Card(
 		modifier = Modifier
 			.fillMaxWidth()
-			.background(Color.Green)
+			//.background(Color.Green)
 			.padding(4.dp)
 	) {
-		Row(verticalAlignment = Alignment.CenterVertically) {
+		Row(
+			//modifier = Modifier.background(Color.White),
+			verticalAlignment = Alignment.CenterVertically
+		) {
 			Text(
 				text = title,
 				modifier = Modifier.weight(1f)
@@ -68,6 +73,6 @@ fun ListItem(title: String) {
 @Composable
 fun DefaultPreview() {
 	SuperTime_v0Theme() {
-		SelectionList()
+		SelectionList(listOf<String>("alarm1", "alarm2", "alarm3"))
 	}
 }

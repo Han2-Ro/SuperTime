@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
@@ -16,26 +15,28 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.han2dev.supertime_v0.R
 import com.han2dev.supertime_v0.ui.theme.SuperTime_v0Theme
 
 class MainActivity : ComponentActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
+
+		val viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
+		viewModel.load(this.applicationContext)
+
 		setContent {
 			SuperTime_v0Theme {
 				val navController = rememberNavController()
@@ -68,7 +69,8 @@ class MainActivity : ComponentActivity() {
 				) {
 					Navigation(
 						navController = navController,
-						modifier = Modifier.padding(it)
+						modifier = Modifier.padding(it),
+						viewModel =  viewModel,
 					)
 				}
 			}
@@ -79,11 +81,12 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Navigation(
 	navController: NavHostController,
-	modifier: Modifier = Modifier
+	modifier: Modifier = Modifier,
+	viewModel: MainActivityViewModel
 ) {
 	NavHost(navController = navController, startDestination = "alarm") {
-		composable("alarm") { AlarmScreen() }
-		composable("timer") { TimerScreen() }
+		composable("alarm") { AlarmScreen(viewModel.alarms.value) }
+		composable("timer") { TimerScreen(viewModel.timers.value) }
 		composable("settings") { SettingsScreen() }
 	}
 }

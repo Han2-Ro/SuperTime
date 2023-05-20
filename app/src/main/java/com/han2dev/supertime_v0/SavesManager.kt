@@ -59,10 +59,10 @@ object SavesManager {
 		else name + extension
 	}
 
-	private fun allTimerFiles(context: Context): List<File> {
+	/*private fun allTimerFiles(context: Context): List<File> {
 		val files = context.filesDir.listFiles()
 		return files.filter { it.name.endsWith(SaveType.TIMER.fileExtension) }
-	}
+	}*/
 
 	/**
 	 * Checks if a file with the given name already exists
@@ -109,14 +109,22 @@ object SavesManager {
 	}
 
 
-	fun loadAll(context: Context) : List<TimerData> {
-		val timers = mutableListOf<TimerData>()
+	fun loadAll(context: Context) : List<Savable> {
+		val items = mutableListOf<Savable>()
 		val files = context.filesDir.listFiles()
 		Log.d(this::class.simpleName,"files: ${files.forEach { it.name }}")
-		for (file in allTimerFiles(context)) {
-			timers.add(loadTimer(context, file.name) ?: continue) //TODO: for alarms
+		for (file in files) {
+			if (file.name.endsWith(SaveType.TIMER.fileExtension)){
+				items.add(loadTimer(context, file.name) ?: continue)
+			}
+			else if (file.name.endsWith(SaveType.ALARM.fileExtension)){
+				items.add(loadAlarm(context, file.name) ?: continue)
+			}
+			else {
+				Log.w(this::class.simpleName, "Didn't recognise file: $file.name")
+			}
 		}
-		return timers
+		return items
 	}
 
 	fun deleteTimer(context: Context, name: String): Boolean {
@@ -135,9 +143,6 @@ object SavesManager {
 	fun deleteAllSavable(context: Context) {
 		val files = context.filesDir.listFiles()
 		TODO("not finished")
-		for (file in allTimerFiles(context)) {
-			deleteTimer(context, file.name)
-		}
 		Log.i(this::class.simpleName, "All Deleted")
 	}
 
