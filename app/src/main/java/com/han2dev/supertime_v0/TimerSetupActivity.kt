@@ -60,7 +60,7 @@ class TimerSetupActivity : ComponentActivity() {
 @Composable
 fun MainScreen(activity: Activity, viewModel: TimerSetupViewModel) {
 	val timer by viewModel.timerNode.observeAsState()
-	val isAddMenuVisable = rememberSaveable {
+	val isAddMenuVisible = rememberSaveable {
 		mutableStateOf(false)
 	}
 
@@ -74,10 +74,10 @@ fun MainScreen(activity: Activity, viewModel: TimerSetupViewModel) {
 					}
 				},
 				actions = {
-					IconButton(modifier = Modifier.testTag("addButton"), onClick = { isAddMenuVisable.value = true }) {
+					IconButton(modifier = Modifier.testTag("addButton"), onClick = { isAddMenuVisible.value = true }) {
 						Icon(Icons.Default.Add, contentDescription = "Add")
 					}
-					MyDropdownMenu(isAddMenuVisable, listOf(
+					MyDropdownMenu(isAddMenuVisible, listOf(
 						DropdownItem("Timer") { viewModel.addTimer(TimerElemData()) },
 						DropdownItem("Loop") {viewModel.addTimer(TimerLoopData()) },
 					))

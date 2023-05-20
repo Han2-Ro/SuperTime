@@ -1,5 +1,6 @@
 package com.han2dev.supertime_v0.ui
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -18,19 +19,21 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 
 @Composable
-fun TimerScreen(timers: List<String>?) {
+fun TimerScreen(timers: List<String>?, onPlay: (String)->Unit) {
 	Box (
 		modifier = Modifier.fillMaxSize()
 	){
 		if (!timers.isNullOrEmpty()){
-			SelectionList(timers)
+			SelectionList(timers, onPlay)
 		}
 		else {
 			Text(text = "No timers.")
@@ -39,18 +42,18 @@ fun TimerScreen(timers: List<String>?) {
 }
 
 @Composable
-private fun SelectionList(titles: List<String>) {
+private fun SelectionList(titles: List<String>, onPlay: (String)->Unit) {
 	LazyColumn(
 		Modifier.background(Color.DarkGray)
 	) {
 		items(titles) {
-			ListItem(it)
+			ListItem(it, onPlay)
 		}
 	}
 }
 
 @Composable
-private fun ListItem(title: String) {
+private fun ListItem(title: String, onPlay: (String)->Unit) {
 	Card(
 		modifier = Modifier
 			.fillMaxWidth()
@@ -66,18 +69,24 @@ private fun ListItem(title: String) {
 				modifier = Modifier.weight(1f)
 			)
 			Icon(
-				imageVector = Icons.Filled.Edit,
-				contentDescription = "Settings",
+				imageVector = Icons.Default.Edit,
+				contentDescription = "Edit",
 				modifier = Modifier
 					.fillMaxHeight()
 					.clickable { /*TODO*/ }
 			)
 			Icon(
-				imageVector = Icons.Filled.Delete,
+				imageVector = Icons.Default.Delete,
 				contentDescription = "Delete",
 				modifier = Modifier.clickable { /*TODO*/ }
 			)
-			Switch(checked = true, onCheckedChange = {/*TODO*/})
+			Icon(
+				imageVector = Icons.Default.PlayArrow,
+				contentDescription = "Play",
+				modifier = Modifier.clickable {
+					onPlay(title)
+				}
+			)
 		}
 
 	}
