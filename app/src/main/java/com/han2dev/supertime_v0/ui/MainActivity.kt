@@ -1,6 +1,7 @@
 package com.han2dev.supertime_v0.ui
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -36,6 +38,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.han2dev.supertime_v0.SavesManager
+import com.han2dev.supertime_v0.TimerActivity
 import com.han2dev.supertime_v0.TimerElemData
 import com.han2dev.supertime_v0.TimerLoopData
 import com.han2dev.supertime_v0.ui.theme.SuperTime_v0Theme
@@ -54,6 +57,12 @@ class MainActivity : ComponentActivity() {
 				MainScreen(navController, viewModel, this)
 			}
 		}
+	}
+
+	private fun playTimer(title: String) {
+		val intent = Intent(this, TimerActivity::class.java)
+		intent.putExtra("timer_id", title)
+		ContextCompat.startActivity(this, intent, null)
 	}
 
 	@Composable
@@ -112,64 +121,66 @@ class MainActivity : ComponentActivity() {
 			)
 		}
 	}
-}
 
-@Composable
-fun Navigation(
-	navController: NavHostController,
-	modifier: Modifier = Modifier,
-	viewModel: MainActivityViewModel,
-	context: Context
-) {
-	NavHost(
-		modifier = modifier,
-		navController = navController,
-		startDestination = "alarm"
+	@Composable
+	fun Navigation(
+		navController: NavHostController,
+		modifier: Modifier = Modifier,
+		viewModel: MainActivityViewModel,
+		context: Context
 	) {
-		composable("alarm") { AlarmScreen(viewModel.alarms.value) }
-		composable("timer") { TimerScreen(viewModel.timers.value) { viewModel.playTimer(it, context) } }
-		composable("settings") { SettingsScreen() }
+		NavHost(
+			modifier = modifier,
+			navController = navController,
+			startDestination = "alarm"
+		) {
+			composable("alarm") { AlarmScreen(viewModel.alarms.value) }
+			composable("timer") { TimerScreen(viewModel.timers.value) { playTimer(it) } }
+			composable("settings") { SettingsScreen() }
+		}
 	}
-}
 
-@Composable
-fun BottomNavigationBar(
-	items: List<BottomNavItem>,
-	navController: NavController,
-	modifier: Modifier = Modifier,
-	onItemClick: (BottomNavItem) -> Unit
-) {
-	val backStackEntry = navController.currentBackStackEntryAsState()
-	BottomNavigation (
-		modifier = modifier,
-		backgroundColor = Color.DarkGray,
-		elevation = 5.dp
-	){
-		items.forEach {item ->
-			val selected = item.route == backStackEntry.value?.destination?.route
-			BottomNavigationItem(
-				selected = selected,
-				onClick = { onItemClick(item) },
-				selectedContentColor = Color.Cyan,
-				unselectedContentColor = Color.LightGray,
-				icon = {
-					Column(horizontalAlignment = Alignment.CenterHorizontally) {
-						Icon(
-							imageVector = item.icon,
-							contentDescription = item.name,
-							modifier = Modifier.size(24.dp)
-						)
-						Text(
-							text = item.name,
-							style = MaterialTheme.typography.subtitle1
-						)
+	@Composable
+	fun BottomNavigationBar(
+		items: List<BottomNavItem>,
+		navController: NavController,
+		modifier: Modifier = Modifier,
+		onItemClick: (BottomNavItem) -> Unit
+	) {
+		val backStackEntry = navController.currentBackStackEntryAsState()
+		BottomNavigation (
+			modifier = modifier,
+			backgroundColor = Color.DarkGray,
+			elevation = 5.dp
+		){
+			items.forEach {item ->
+				val selected = item.route == backStackEntry.value?.destination?.route
+				BottomNavigationItem(
+					selected = selected,
+					onClick = { onItemClick(item) },
+					selectedContentColor = Color.Cyan,
+					unselectedContentColor = Color.LightGray,
+					icon = {
+						Column(horizontalAlignment = Alignment.CenterHorizontally) {
+							Icon(
+								imageVector = item.icon,
+								contentDescription = item.name,
+								modifier = Modifier.size(24.dp)
+							)
+							Text(
+								text = item.name,
+								style = MaterialTheme.typography.subtitle1
+							)
 
+						}
 					}
-				}
-			)
+				)
+			}
 		}
 	}
 }
+
+
 
 @Preview(showBackground = true)
 @Composable

@@ -14,7 +14,7 @@ import com.han2dev.supertime_v0.TimerData
 import com.han2dev.supertime_v0.TimerElemData
 import com.han2dev.supertime_v0.TimerLoopData
 
-class MainActivityViewModel(private val activity: MainActivity) : ViewModel() {
+class MainActivityViewModel() : ViewModel() {
     private val _alarms: MutableLiveData<MutableList<String>> = MutableLiveData()
     val alarms: LiveData<MutableList<String>> = _alarms
 
@@ -44,11 +44,5 @@ class MainActivityViewModel(private val activity: MainActivity) : ViewModel() {
         else {
             Toast.makeText(context, "Failed to save timer.", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    fun playTimer(title: String, context: Context) {
-        val intent = Intent(activity, TimerActivity::class.java)
-        intent.putExtra("timer_id", title)
-        startActivity(context, intent, null)
     }
 }
