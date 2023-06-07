@@ -12,16 +12,14 @@ import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,14 +37,18 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.han2dev.supertime_v0.SavesManager
 import com.han2dev.supertime_v0.TimerActivity
-import com.han2dev.supertime_v0.TimerElemData
-import com.han2dev.supertime_v0.TimerLoopData
 import com.han2dev.supertime_v0.ui.theme.SuperTime_v0Theme
-import com.han2dev.supertime_v0.ui.timer.NewTimerDialog
 
 class MainActivity : ComponentActivity() {
+
+	companion object {
+		lateinit var context: Context
+	}
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
+
+		context = applicationContext
 
 		val viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
 		viewModel.load(this.applicationContext)
@@ -59,9 +61,9 @@ class MainActivity : ComponentActivity() {
 		}
 	}
 
-	private fun playTimer(title: String) {
-		val intent = Intent(this, TimerActivity::class.java)
-		intent.putExtra("timer_id", title)
+	private fun loadActivityWithTimer(name: String, activityClass: Class<*>) {
+		val intent = Intent(this, activityClass)
+		intent.putExtra("timer_id", name)
 		ContextCompat.startActivity(this, intent, null)
 	}
 
@@ -135,7 +137,11 @@ class MainActivity : ComponentActivity() {
 			startDestination = "alarm"
 		) {
 			composable("alarm") { AlarmScreen(viewModel.alarms.value) }
-			composable("timer") { TimerScreen(viewModel.timers.value) { playTimer(it) } }
+			composable("timer") { TimerScreen(viewModel.timers.value)
+				{ name, activityClass ->
+					loadActivityWithTimer(name, activityClass)
+				}
+			}
 			composable("settings") { SettingsScreen() }
 		}
 	}

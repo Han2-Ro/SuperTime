@@ -2,6 +2,7 @@ package com.han2dev.supertime_v0
 
 import android.media.AudioAttributes
 import android.media.SoundPool
+import com.han2dev.supertime_v0.ui.MainActivity
 import kotlinx.serialization.Serializable
 
 
@@ -37,7 +38,7 @@ object SoundManager {
 
     fun loadSound(resId: Int): Int {
         if (!loadedSounds.containsKey(resId)) {
-            loadedSounds[resId] = soundPool.load(OldMainActivity.context, resId, 1)
+            loadedSounds[resId] = soundPool.load(MainActivity.context, resId, 1)
             println("loaded sound: $resId")
         }
         return loadedSounds[resId]!!
